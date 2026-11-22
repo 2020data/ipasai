@@ -2108,6 +2108,38 @@ function doPost(e) {
     function loadLocalState() {
       // 1. 載入題庫
       try {
+        const savedBank = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANK) || "null");
+        if (savedBank && Array.isArray(savedBank.questions) && savedBank.questions.length > 0) {
+          state.bank = {
+            title: savedBank.title || DEFAULT_BANK.title,
+            subtitle: savedBank.subtitle !== undefined ? savedBank.subtitle : DEFAULT_BANK.subtitle,
+            questions: savedBank.questions
+          };
+        } else {
+          state.bank = JSON.parse(JSON.stringify(DEFAULT_BANK));
+        }
+      } catch (e) {
+        state.bank = JSON.parse(JSON.stringify(DEFAULT_BANK));
+      }
+
+      // 2. 載入來訪與錯題統計（若為本機首次開啟且無 GAS 網址，載入展示範例一次）
+      const seeded = localStorage.getItem(STORAGE_KEYS.DEMO_SEEDED);
+      if (!state.gasUrl && !seeded && !localStorage.getItem(STORAGE_KEYS.VISITS)) {
+        state.visits = JSON.parse(JSON.stringify(DEMO_VISITS));
+        state.errors = JSON.parse(JSON.stringify(DEMO_ERRORS)).map(normalizeErrorRecord);
+        localStorage.setItem(STORAGE_KEYS.DEMO_SEEDED, "1");
+        saveLocalState();
+        return;
+      }
+
+      try {
+        const rawVisits = JSON.parse(localStorage.getItem(STORAGE_KEYS.VISITS) || "[]");
+        state.visits = Array.isArray(rawVisits) ? rawVisits : [];
+      } catch (e) {
+        state.visits = [];
+      }
+
+      try {
         const rawErrors = JSON.parse(localStorage.getItem(STORAGE_KEYS.ERRORS) || "[]");
         state.errors = Array.isArray(rawErrors) ? rawErrors.map(normalizeErrorRecord) : [];
       } catch (e) {
@@ -2401,34 +2433,6 @@ function doPost(e) {
       nextBtn.classList.remove("hidden");
     }
 
-    async function handleNextQuestion() {
-      const s = state.session;
-      if (s.index < s.questions.length - 1) {
-        s.index += 1;
-        renderCurrentQuestion();
-      } else {
-        await finishQuiz();
-      }
-    }
-
-    async function finishQuiz() {
-      const s = state.session;
-      const total = s.questions.length;
-      const today = getTodayStr();
-
-      // 1. 顯示完成畫面
-      document.getElementById("quiz-play-panel").classList.add("hidden");
-      document.getElementById("quiz-result-panel").classList.remove("hidden");
-
-      document.getElementById("result-trail-tag").textContent = `${total} / ${total} 里程碑`;
-      document.getElementById("result-trail-final").innerHTML = buildGrowthTrailSVG(total, total, s.stepStatus);
-      document.getElementById("result-username").textContent = s.username;
-      document.getElementById("result-score").textContent = s.score;
-      document.getElementById("result-total").textContent = total;
-
-      const ratio = total > 0 ? s.score / total : 0;
-      let comment = "每一次練習都在為未來累積能量，明天見！";
-      if (ratio === 1) comment = "全數答對！今天的步伐非常穩健，太棒了！";
     function recordErrorLocally(questionId, questionText, chosenKey) {
       const keyField = `wrong${chosenKey.toUpperCase()}`;
       const eIdx = state.errors.findIndex((item) => item.questionId === questionId);
@@ -2996,6 +3000,44 @@ function doPost(e) {
       }
       try {
         const parsed = JSON.parse(raw);
+        const list = Array.isArray(parsed)
+          ? parsed
+          : (parsed && Array.isArray(parsed.questions) ? parsed.questions : null);
+        if (!list || list.length === 0) {
+          throw new Error("JSON 必須是包含題目的陣列 [...]，或含有 questions 陣列的物件");
+        }
+
+        const cleaned = list.map((q, i) => {
+          if (!q || !q.text || !q.options || !q.answer) {
+            throw new Error(`第 ${i + 1} 題缺少必要欄位（text、options、answer）`);
+          }
+          const ans = String(q.answer).trim().toUpperCase();
+          return {
+            id: q.id ? String(q.id) : `q_imp_${Date.now()}_${i}`,
+            text: String(q.text).trim(),
+            options: {
+              A: String(q.options.A || "").trim(),
+              B: String(q.options.B || "").trim(),
+              C: String(q.options.C || "").trim(),
+              D: String(q.options.D || "").trim()
+            },
+            answer: ["A", "B", "C", "D"].includes(ans) ? ans : "A",
+            explanation: String(q.explanation || "").trim()
+          };
+        });
+
+        if (parsed && !Array.isArray(parsed)) {
+          if (parsed.title) state.bank.title = String(parsed.title).trim();
+          if (parsed.subtitle !== undefined) state.bank.subtitle = String(parsed.subtitle).trim();
+        }
+        state.bank.questions = cleaned;
+        closeImportModal();
+        await persistBankChanges(`成功匯入 ${cleaned.length} 題題庫`);
+      } catch (err) {
+        showToast(`匯入失敗：${err.message}`, "error");
+      }
+    }
+
     // 5. 重置統計數據（雲端模式送 GAS 驗證重置，本機模式清除 localStorage）
     function confirmResetStats() {
       const isCloud = Boolean(state.gasUrl);
