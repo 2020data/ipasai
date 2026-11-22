@@ -454,6 +454,148 @@
     }
 
     /* =====================================================================
+       40 天由淺入深成長地圖與個人帳號列
+       ===================================================================== */
+    .account-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      margin-bottom: 18px;
+    }
+
+    .account-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .account-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stage-block {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .stage-block:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .stage-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .stage-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stage-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+    }
+
+    .stage-lv1 { background: #E6F4EA; color: #1E6B42; }
+    .stage-lv2 { background: #E8F1FA; color: #1E5A8A; }
+    .stage-lv3 { background: #FDF2E6; color: #B45A1C; }
+    .stage-lv4 { background: #F5EAF7; color: #7A2E8C; }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 8px;
+    }
+
+    .day-tile {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 4px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #FCFBF9;
+      transition: all 0.16s ease;
+      min-height: 58px;
+    }
+
+    .day-tile:hover {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      transform: translateY(-2px);
+    }
+
+    .day-tile.is-done {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .day-tile.is-done:hover {
+      background: var(--primary-hover);
+      color: #fff;
+    }
+
+    .day-tile.is-next {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: #9C3F1D;
+      box-shadow: 0 0 0 3px rgba(217, 107, 67, 0.16);
+    }
+
+    .day-num {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .day-sub {
+      font-size: 10.5px;
+      font-weight: 600;
+      margin-top: 3px;
+      opacity: 0.85;
+    }
+
+    @media (max-width: 720px) {
+      .days-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    /* =====================================================================
        答題介面 (#quiz)
        ===================================================================== */
     .quiz-wrap {
@@ -1080,56 +1222,128 @@
          頁面 1：首頁與每日五題練習 (#home / #quiz)
          =================================================== -->
     <section id="view-home" class="fade-in">
-      <!-- 1A. 首頁開始卡片 -->
-      <div id="home-start-panel" class="home-wrap">
-        <div class="card">
-          <div class="hero-badge">
-            <span>每日 5 題精選</span>
-            <span>•</span>
-            <span id="home-q-count">題庫共 8 題</span>
+      <!-- 1A. 登入與 40 天成長小徑主畫面 -->
+      <div id="home-start-panel">
+        <!-- 尚未登入帳號：輸入名稱建立／登入唯一帳號 -->
+        <div id="home-login-card" class="home-wrap">
+          <div class="card">
+            <div class="hero-badge">
+              <span>40 天由淺入深・每日 5 題</span>
+              <span>•</span>
+              <span id="home-q-count">題庫共 24 題</span>
+            </div>
+            <h1 id="home-bank-title" class="hero-title">每日五題・40 天成長小徑</h1>
+            <p id="home-bank-subtitle" class="hero-subtitle">輸入名字即可啟用您的唯一跨裝置帳號，從第 1 天到第 40 天由淺入深持續練習，並可隨時重複考試。</p>
+
+            <!-- 首頁靜態成長小徑預覽 -->
+            <div class="trail-box">
+              <div class="trail-header">
+                <span>今日五步成長軌跡</span>
+                <span>共 40 天・4 大難度階段</span>
+              </div>
+              <div id="home-trail-preview"></div>
+            </div>
+
+            <form onsubmit="handleUserLogin(event)">
+              <label for="username-input" class="field-label">請輸入您的專屬用戶名稱（唯一帳號，跨裝置通用）</label>
+              <input
+                id="username-input"
+                class="input"
+                type="text"
+                maxlength="30"
+                required
+                placeholder="例如：阿明、小晴、林同學..."
+                style="margin-bottom: 14px;"
+              />
+              <button type="submit" id="login-submit-btn" class="btn btn-primary btn-full">
+                <span>登入／進入我的 40 天小徑</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
+                </svg>
+              </button>
+            </form>
+
+            <!-- 隱私極簡紀錄徽章 -->
+            <div class="privacy-badge">
+              <div class="privacy-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <div>
+                <strong>跨裝置唯一帳號與隱私宣告：</strong>在任何手機或電腦輸入相同名稱即可延續 40 天進度。系統僅紀錄「用戶名稱來訪次數與完成天數」及「每題匿名錯誤統計」，不保留個人作答明細或分數。
+              </div>
+            </div>
           </div>
-          <h1 id="home-bank-title" class="hero-title">每日五題・成長小徑</h1>
-          <p id="home-bank-subtitle" class="hero-subtitle">每天花兩分鐘完成五題隨機練習，一步步累積穩定而踏實的成長。</p>
+        </div>
 
-          <!-- 首頁靜態成長小徑預覽 -->
-          <div class="trail-box">
-            <div class="trail-header">
-              <span>今日五步成長軌跡</span>
-              <span>準備出發</span>
+        <!-- 已登入帳號：40 天由淺入深個人練習儀表板 -->
+        <div id="home-dashboard-panel" class="hidden">
+          <div class="account-bar">
+            <div class="account-meta">
+              <div id="dash-avatar" class="account-avatar">明</div>
+              <div>
+                <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
+                  <strong id="dash-username" style="font-size:17px; color:var(--text-main);"></strong>
+                  <span class="tag tag-primary">跨裝置唯一帳號</span>
+                </div>
+                <div id="dash-progress-text" style="font-size:13px; color:var(--text-muted); margin-top:2px;">
+                  已完成 0 / 40 天 • 累計練習 0 次
+                </div>
+              </div>
             </div>
-            <div id="home-trail-preview"></div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="syncCurrentUserFromCloud()">同步跨裝置進度</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="switchUserAccount()">切換帳號</button>
+            </div>
           </div>
 
-          <form onsubmit="handleStartQuiz(event)">
-            <label for="username-input" class="field-label">請輸入您的用戶名稱</label>
-            <input
-              id="username-input"
-              class="input"
-              type="text"
-              maxlength="30"
-              required
-              placeholder="例如：阿明、小晴、林同學..."
-              style="margin-bottom: 14px;"
-            />
-            <button type="submit" class="btn btn-primary btn-full">
-              <span>開始今日五題</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
-              </svg>
-            </button>
-          </form>
+          <!-- 今日推薦卡片 -->
+          <div class="card">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px;">
+              <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                  <span id="dash-next-stage-pill" class="stage-pill stage-lv1">階段一・基礎入門</span>
+                  <span style="font-size:12.5px; color:var(--text-muted);" id="dash-next-hint">依進度推薦今日關卡</span>
+                </div>
+                <h2 id="dash-next-title" style="font-size:21px; font-weight:800; color:var(--text-main);">第 1 天・每日五題挑戰</h2>
+                <p style="font-size:13.5px; color:var(--text-muted); margin-top:4px;">
+                  每天皆為固定不重複的五題組合，完成後自動儲存至雲端；也可點擊下方任一天數重複考試。
+                </p>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                <button type="button" id="dash-start-next-btn" class="btn btn-primary" onclick="startRecommendedDay()">
+                  <span>開始第 1 天練習</span>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <button type="button" class="btn btn-outline" onclick="startRandomReview()">隨機綜合測驗</button>
+              </div>
+            </div>
 
-          <!-- 隱私極簡紀錄徽章 -->
-          <div class="privacy-badge">
-            <div class="privacy-icon" aria-hidden="true">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-              </svg>
+            <!-- 40 天總進度條 -->
+            <div style="margin-top:16px;">
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:5px;">
+                <span>40 天成長總進度</span>
+                <span id="dash-progress-pct" style="color:var(--primary);">0%</span>
+              </div>
+              <div class="bar-track" style="height:10px;">
+                <div id="dash-progress-bar" class="bar-fill" style="width:0%;"></div>
+              </div>
             </div>
-            <div>
-              <strong>隱私保護宣告：</strong>本系統僅紀錄「用戶名稱來訪次數」與「每題匿名錯誤統計」，不保留個人答題明細或分數。
+          </div>
+
+          <!-- 40 天由淺入深地圖 -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">40 天由淺入深練習地圖</div>
+                <div class="card-sub">綠色「✓」為已完成（可隨時點擊重複考試），橘色為推薦挑戰天數</div>
+              </div>
             </div>
+            <div id="forty-days-map"></div>
           </div>
         </div>
       </div>
@@ -1140,7 +1354,10 @@
           <!-- 五步成長小徑即時進度 -->
           <div class="trail-box">
             <div class="trail-header">
-              <span>練習者：<strong id="quiz-user-label"></strong></span>
+              <span>
+                練習者：<strong id="quiz-user-label"></strong>
+                <span id="quiz-day-badge" class="tag tag-primary" style="margin-left:6px; font-size:11px;">第 1 天</span>
+              </span>
               <span id="quiz-step-label">第 1 / 5 步</span>
             </div>
             <div id="quiz-trail-live"></div>
@@ -1157,7 +1374,7 @@
           </div>
 
           <div class="quiz-footer">
-            <button type="button" class="btn btn-outline btn-sm" onclick="confirmAbortQuiz()">返回首頁</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="confirmAbortQuiz()">返回 40 天地圖</button>
             <button type="button" id="quiz-next-btn" class="btn btn-primary hidden" onclick="handleNextQuestion()">
               <span id="quiz-next-btn-text">下一題</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -1173,13 +1390,13 @@
         <div class="card" style="text-align: center;">
           <div class="trail-box" style="text-align: left;">
             <div class="trail-header">
-              <span>今日成長小徑已完成</span>
+              <span id="result-day-label">第 1 天成長小徑已完成</span>
               <span id="result-trail-tag">5 / 5 里程碑</span>
             </div>
             <div id="result-trail-final"></div>
           </div>
 
-          <h2 style="font-size: 23px; font-weight: 800; margin-bottom: 4px;">今日五題練習完成！</h2>
+          <h2 id="result-heading" style="font-size: 23px; font-weight: 800; margin-bottom: 4px;">今日五題練習完成！</h2>
           <p style="font-size: 14px; color: var(--text-muted);">
             感謝你的堅持，<strong id="result-username" style="color: var(--text-main);"></strong>
           </p>
@@ -1194,12 +1411,13 @@
           </div>
 
           <div id="result-sync-note" class="result-sync-note">
-            <span>✓ 已更新您的來訪次數與匿名錯題統計</span>
+            <span>✓ 已更新您的跨裝置 40 天進度與匿名錯題統計</span>
           </div>
 
           <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-            <button class="btn btn-primary" style="flex: 1; min-width: 170px;" onclick="resetToHome()">再練一輪（重新抽五題）</button>
-            <button class="btn btn-outline" style="flex: 1; min-width: 150px;" onclick="navigateTo('stats')">查看統計數據</button>
+            <button id="result-next-day-btn" class="btn btn-primary" style="flex: 1; min-width: 150px;" onclick="handleResultNextDay()">挑戰下一天</button>
+            <button id="result-retake-btn" class="btn btn-accent" style="flex: 1; min-width: 140px;" onclick="handleResultRetake()">重考本天</button>
+            <button class="btn btn-outline" style="flex: 1; min-width: 140px;" onclick="resetToHome()">返回 40 天地圖</button>
           </div>
         </div>
       </div>
@@ -1345,34 +1563,35 @@
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
             <button class="btn btn-primary btn-sm" onclick="saveGasUrlOnly()">儲存網址並啟用雲端驗證</button>
             <button class="btn btn-accent btn-sm" onclick="testAndSyncGas()">測試連線並同步</button>
+            <button class="btn btn-outline btn-sm" onclick="copyShareLink()">一鍵複製分享連結</button>
             <button class="btn btn-outline btn-sm" onclick="switchToLocalDemo()">切換回本機展示模式</button>
           </div>
 
           <div class="note-box">
-            <strong>設定步驟（完全免費，GitHub 程式碼零密碼）：</strong><br />
+            <strong>設定與分享步驟（完全免費，支援跨裝置唯一帳號，GitHub 程式碼零密碼）：</strong><br />
             1. 建立一份新的 Google 試算表 → 點擊上方「擴充功能」→「Apps Script」。<br />
             2. 展開下方 <code>Code.gs</code> 並按「一鍵複製」，覆蓋貼上後存檔。<br />
             3. 點選左側「專案設定（齒輪）」→ 捲至最下方「指令碼屬性」→ 新增屬性 <code>ADMIN_PASSWORD</code> 並填入您的管理者密碼。<br />
             4. 右上角「部署」→「新增部署作業」→ 類型選「網頁應用程式」→ 存取權選「<strong>所有人</strong>」→ 複製 <code>/exec</code> 網址。<br />
-            5. 將網址貼入上方測試；若要讓所有 GitHub Pages 訪客自動共用，請把網址寫入本 HTML 頂部的 <code>DEFAULT_GAS_URL</code> 常數再推送至 GitHub。
+            5. 題庫編輯固定後，將網址寫入本 HTML 頂部的 <code>DEFAULT_GAS_URL</code> 推送至 GitHub Pages，或直接點擊上方「<strong>一鍵複製分享連結</strong>」傳給不同人，對方在任何裝置輸入名字即可擁有唯一帳號並持續 40 天練習。
           </div>
 
           <!-- 內建可展開複製的 Code.gs -->
           <details class="code-details">
             <summary>
-              <span>展開／複製最新版 Google Apps Script 後端程式碼（Code.gs）</span>
+              <span>展開／複製最新版 Google Apps Script 後端程式碼（Code.gs・支援 40 天跨裝置進度）</span>
               <span style="font-size: 12px; color: #9EB5AB;">點擊展開 ▼</span>
             </summary>
             <div class="code-toolbar">
-              <span>支援指令碼屬性 ADMIN_PASSWORD 驗證，自動建立 Visits / Errors / Bank 三張工作表</span>
+              <span>支援 ADMIN_PASSWORD 驗證、唯一帳號 40 天跨裝置進度同步與每題錯題統計</span>
               <button type="button" class="btn btn-primary btn-sm" onclick="copyGasCode()" style="flex-shrink: 0;">一鍵複製 Code.gs</button>
             </div>
             <pre id="gas-code-template" class="code-pre">/**
- * 每日五題成長小徑 - Google Apps Script 安全後端 (Code.gs)
+ * 每日五題 40 天成長小徑 - Google Apps Script 安全後端 (Code.gs)
  * 密碼完全存放於 GAS「專案設定 → 指令碼屬性 → ADMIN_PASSWORD」，絕不寫入前端程式碼。
  *
  * 自動初始化三個工作表：
- * 1. Visits (username, count, lastDate)
+ * 1. Visits (username, count, lastDate, completedDays)
  * 2. Errors (questionId, questionText, totalErrors, wrongA, wrongB, wrongC, wrongD)
  * 3. Bank   (key, value)
  */
@@ -1404,16 +1623,36 @@ function getOrInitSheet_(ss, name, headers) {
       sheet.appendRow(headers);
       sheet.setFrozenRows(1);
     }
+  } else if (headers && headers.length) {
+    // 若既有工作表缺少新欄位（如 completedDays），自動補齊表頭
+    const lastCol = Math.max(sheet.getLastColumn(), 1);
+    const existingHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+    if (existingHeaders.length &lt; headers.length) {
+      for (let c = existingHeaders.length; c &lt; headers.length; c++) {
+        sheet.getRange(1, c + 1).setValue(headers[c]);
+      }
+    }
   }
   return sheet;
 }
 
 function initAllSheets_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const visitsSheet = getOrInitSheet_(ss, 'Visits', ['username', 'count', 'lastDate']);
+  const visitsSheet = getOrInitSheet_(ss, 'Visits', ['username', 'count', 'lastDate', 'completedDays']);
   const errorsSheet = getOrInitSheet_(ss, 'Errors', ['questionId', 'questionText', 'totalErrors', 'wrongA', 'wrongB', 'wrongC', 'wrongD']);
   const bankSheet   = getOrInitSheet_(ss, 'Bank',   ['key', 'value']);
   return { visitsSheet, errorsSheet, bankSheet };
+}
+
+function parseDaysJson_(raw) {
+  if (!raw) return [];
+  try {
+    const arr = JSON.parse(String(raw));
+    if (Array.isArray(arr)) {
+      return arr.map(Number).filter(n =&gt; n &gt;= 1 &amp;&amp; n &lt;= 40).sort((a, b) =&gt; a - b);
+    }
+  } catch (e) {}
+  return [];
 }
 
 function jsonOut_(obj) {
@@ -1423,13 +1662,13 @@ function jsonOut_(obj) {
 }
 
 /**
- * GET: 讀取題庫、來訪統計、錯題統計與 hasAdminPassword 狀態（絕不回傳密碼）
+ * GET: 讀取題庫、來訪與 40 天進度、錯題統計與 hasAdminPassword 狀態
  */
 function doGet(e) {
   try {
     const { visitsSheet, errorsSheet, bankSheet } = initAllSheets_();
 
-    // 1. 讀取 Visits
+    // 1. 讀取 Visits（含唯一帳號 40 天完成進度）
     const vRows = visitsSheet.getDataRange().getValues();
     const visits = [];
     for (let i = 1; i &lt; vRows.length; i++) {
@@ -1438,7 +1677,8 @@ function doGet(e) {
       visits.push({
         username: name,
         count: Number(vRows[i][1] || 0),
-        lastDate: String(vRows[i][2] || '')
+        lastDate: String(vRows[i][2] || ''),
+        completedDays: parseDaysJson_(vRows[i][3])
       });
     }
 
@@ -1486,7 +1726,7 @@ function doGet(e) {
 }
 
 /**
- * POST: 處理 recordVisit / recordError / verifyAdmin / saveBank(需密碼) / resetStats(需密碼)
+ * POST: 處理 loginUser / recordDayComplete / recordVisit / recordError / verifyAdmin / saveBank / resetStats
  */
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -1502,10 +1742,41 @@ function doPost(e) {
 
     const { visitsSheet, errorsSheet, bankSheet } = initAllSheets_();
 
-    // 2. 紀錄用戶來訪頻率（僅紀錄名稱、累計次數與日期）
-    if (action === 'recordVisit') {
+    // 2. 跨裝置唯一帳號登入／自動建帳
+    if (action === 'loginUser') {
       const username = String(payload.username || '').trim();
       const dateStr  = String(payload.date || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd'));
+      if (!username) return jsonOut_({ ok: false, error: 'Missing username' });
+
+      const vValues = visitsSheet.getDataRange().getValues();
+      for (let i = 1; i &lt; vValues.length; i++) {
+        if (String(vValues[i][0]).trim() === username) {
+          return jsonOut_({
+            ok: true,
+            isNew: false,
+            user: {
+              username: username,
+              count: Number(vValues[i][1] || 0),
+              lastDate: String(vValues[i][2] || ''),
+              completedDays: parseDaysJson_(vValues[i][3])
+            }
+          });
+        }
+      }
+      // 尚未存在則自動建立唯一帳號
+      visitsSheet.appendRow([username, 0, dateStr, '[]']);
+      return jsonOut_({
+        ok: true,
+        isNew: true,
+        user: { username: username, count: 0, lastDate: dateStr, completedDays: [] }
+      });
+    }
+
+    // 3. 紀錄來訪與 40 天完成進度（支援重複考試累計次數，並保留所有已完成天數）
+    if (action === 'recordDayComplete' || action === 'recordVisit') {
+      const username = String(payload.username || '').trim();
+      const dateStr  = String(payload.date || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd'));
+      const dayNum   = Number(payload.day || 0);
       if (!username) return jsonOut_({ ok: false, error: 'Missing username' });
 
       const vValues = visitsSheet.getDataRange().getValues();
@@ -1516,16 +1787,32 @@ function doPost(e) {
           break;
         }
       }
+
       if (foundRow &gt; 0) {
         const prevCount = Number(vValues[foundRow - 1][1] || 0);
-        visitsSheet.getRange(foundRow, 2, 1, 2).setValues([[prevCount + 1, dateStr]]);
+        const days = parseDaysJson_(vValues[foundRow - 1][3]);
+        if (dayNum &gt;= 1 &amp;&amp; dayNum &lt;= 40 &amp;&amp; days.indexOf(dayNum) === -1) {
+          days.push(dayNum);
+          days.sort((a, b) =&gt; a - b);
+        }
+        visitsSheet.getRange(foundRow, 2, 1, 3).setValues([[prevCount + 1, dateStr, JSON.stringify(days)]]);
+        return jsonOut_({
+          ok: true,
+          action: action,
+          user: { username: username, count: prevCount + 1, lastDate: dateStr, completedDays: days }
+        });
       } else {
-        visitsSheet.appendRow([username, 1, dateStr]);
+        const initDays = (dayNum &gt;= 1 &amp;&amp; dayNum &lt;= 40) ? [dayNum] : [];
+        visitsSheet.appendRow([username, 1, dateStr, JSON.stringify(initDays)]);
+        return jsonOut_({
+          ok: true,
+          action: action,
+          user: { username: username, count: 1, lastDate: dateStr, completedDays: initDays }
+        });
       }
-      return jsonOut_({ ok: true, action: 'recordVisit' });
     }
 
-    // 3. 紀錄單題匿名錯誤選項（不綁定任何用戶個資）
+    // 4. 紀錄單題匿名錯誤選項（不綁定任何用戶個資）
     if (action === 'recordError') {
       const qId = String(payload.questionId || '').trim();
       const qText = String(payload.questionText || '');
@@ -1562,13 +1849,13 @@ function doPost(e) {
       return jsonOut_({ ok: true, action: 'recordError' });
     }
 
-    // 4. 儲存題庫名稱與題目（需後端密碼複驗）
+    // 5. 儲存題庫名稱與題目（需後端密碼複驗）
     if (action === 'saveBank') {
       const auth = verifyPassword(payload.password);
       if (!auth.ok) return jsonOut_(auth);
 
       const bankObj = {
-        title: String(payload.title || '每日五題・成長小徑'),
+        title: String(payload.title || '每日五題・40 天成長小徑'),
         subtitle: String(payload.subtitle || ''),
         questions: Array.isArray(payload.questions) ? payload.questions : []
       };
@@ -1589,7 +1876,7 @@ function doPost(e) {
       return jsonOut_({ ok: true, action: 'saveBank' });
     }
 
-    // 5. 重置統計數據（需後端密碼複驗，保留題庫不變）
+    // 6. 重置統計數據（需後端密碼複驗，保留題庫不變）
     if (action === 'resetStats') {
       const auth = verifyPassword(payload.password);
       if (!auth.ok) return jsonOut_(auth);
@@ -1688,29 +1975,44 @@ function doPost(e) {
         <div class="form-grid-2" style="margin-bottom: 12px;">
           <div>
             <label class="field-label" for="q-input-a">選項 A *</label>
-            <input id="q-input-a" class="input" type="text" required />
+            <input id="q-input-a" class="input" type="text" required placeholder="請輸入選項 A..." />
           </div>
           <div>
             <label class="field-label" for="q-input-b">選項 B *</label>
-            <input id="q-input-b" class="input" type="text" required />
+            <input id="q-input-b" class="input" type="text" required placeholder="請輸入選項 B..." />
           </div>
           <div>
             <label class="field-label" for="q-input-c">選項 C *</label>
-            <input id="q-input-c" class="input" type="text" required />
+            <input id="q-input-c" class="input" type="text" required placeholder="請輸入選項 C..." />
           </div>
           <div>
             <label class="field-label" for="q-input-d">選項 D *</label>
-            <input id="q-input-d" class="input" type="text" required />
+            <input id="q-input-d" class="input" type="text" required placeholder="請輸入選項 D..." />
+          </div>
+        </div>
+        <div class="form-grid-2" style="margin-bottom: 12px;">
+          <div>
+            <label class="field-label" for="q-input-answer">正確答案 *</label>
+            <select id="q-input-answer" class="select">
+              <option value="A">選項 A</option>
+              <option value="B">選項 B</option>
+              <option value="C">選項 C</option>
+              <option value="D">選項 D</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="q-input-level">難度階段（由淺入深）*</label>
+            <select id="q-input-level" class="select">
+              <option value="1">階段一：基礎入門（Day 1–10）</option>
+              <option value="2">階段二：進階應用（Day 11–20）</option>
+              <option value="3">階段三：深化思辨（Day 21–30）</option>
+              <option value="4">階段四：高階統整（Day 31–40）</option>
+            </select>
           </div>
         </div>
         <div style="margin-bottom: 12px;">
-          <label class="field-label" for="q-input-answer">正確答案 *</label>
-          <select id="q-input-answer" class="select">
-            <option value="A">選項 A</option>
-            <option value="B">選項 B</option>
-            <option value="C">選項 C</option>
-            <option value="D">選項 D</option>
-          </select>
+          <label class="field-label" for="q-input-day">指定天數（1–40，留空則依階段自動分配至每日題組）</label>
+          <input id="q-input-day" class="input" type="number" min="1" max="40" placeholder="例如：1 代表固定出現在第 1 天" />
         </div>
         <div style="margin-bottom: 18px;">
           <label class="field-label" for="q-input-exp">解析說明（作答後顯示）</label>
@@ -1779,17 +2081,35 @@ function doPost(e) {
       BANK: "dfg_bank_v1",
       VISITS: "dfg_visits_v1",
       ERRORS: "dfg_errors_v1",
-      DEMO_SEEDED: "dfg_demo_seeded_v1"
+      DEMO_SEEDED: "dfg_demo_seeded_v1",
+      CURRENT_USER: "dfg_current_user_v1"
     };
 
-    // 預設 8 題範例題庫（成長思維 × 實用常識）
+    // 40 天由淺入深四階段定義
+    const STAGES = [
+      { level: 1, name: "階段一・初探啟程", tag: "基礎入門", startDay: 1,  endDay: 10, cssClass: "stage-lv1" },
+      { level: 2, name: "階段二・穩步扎根", tag: "進階應用", startDay: 11, endDay: 20, cssClass: "stage-lv2" },
+      { level: 3, name: "階段三・深化思辨", tag: "綜合分析", startDay: 21, endDay: 30, cssClass: "stage-lv3" },
+      { level: 4, name: "階段四・圓滿精進", tag: "高階統整", startDay: 31, endDay: 40, cssClass: "stage-lv4" }
+    ];
+
+    function getStageByDay(day) {
+      return STAGES.find((s) => day >= s.startDay && day <= s.endDay) || STAGES[0];
+    }
+
+    function getStageByLevel(level) {
+      return STAGES.find((s) => s.level === Number(level)) || STAGES[0];
+    }
+
+    // 預設 24 題由淺入深範例題庫（4 階段 × 6 題，涵蓋 Day 1–40 遞進練習；後台可自由替換為最多 200 題固定題庫）
     const DEFAULT_BANK = {
-      title: "每日五題・成長小徑",
-      subtitle: "每天花兩分鐘完成五題隨機練習，一步步累積穩定而踏實的成長。",
+      title: "每日五題・40 天成長小徑",
+      subtitle: "輸入名字即可啟用您的唯一跨裝置帳號，從第 1 天到第 40 天由淺入深持續練習，並可隨時重複考試。",
       questions: [
+        // ===== 階段一：基礎入門（Level 1，Day 1–10） =====
         {
-          id: "q_growth_1",
-          text: "根據心理學家卡蘿・杜維克（Carol Dweck）的研究，「成長型思維（Growth Mindset）」的核心信念是什麼？",
+          id: "q_lv1_1", level: 1, day: null,
+          text: "【基礎】根據心理學家卡蘿・杜維克（Carol Dweck）的研究，「成長型思維（Growth Mindset）」的核心信念是什麼？",
           options: {
             A: "人的天賦與智力在出生時就已固定不變",
             B: "能力可以透過持續努力、策略調整與回饋而不斷成長",
@@ -1800,20 +2120,8 @@ function doPost(e) {
           explanation: "成長型思維相信大腦像肌肉一樣，透過刻意練習、檢討錯誤與調整方法能持續進步。"
         },
         {
-          id: "q_growth_2",
-          text: "在學習新知識時，下列哪一種複習方式最能有效強化長期記憶（符合「提取練習」效應）？",
-          options: {
-            A: "反覆用螢光筆畫滿整頁重點並默唸",
-            B: "闔上書本，嘗試用自己的話回答問題或進行小測驗",
-            C: "在考前一天熬夜一口氣讀完所有章節",
-            D: "只挑自己已經非常熟練的單元一直重看"
-          },
-          answer: "B",
-          explanation: "主動提取（Active Recall，例如每日五題小測驗）比被動重讀更能鞏固神經連結。"
-        },
-        {
-          id: "q_growth_3",
-          text: "建立日常好習慣時，《原子習慣》提到的「兩分鐘法則」主要想解決什麼問題？",
+          id: "q_lv1_2", level: 1, day: null,
+          text: "【基礎】建立日常好習慣時，《原子習慣》提到的「兩分鐘法則」主要想解決什麼問題？",
           options: {
             A: "要求每天只能花兩分鐘學習，不可超過",
             B: "降低開始行動的阻力，讓新習慣容易啟動並維持連續性",
@@ -1824,44 +2132,8 @@ function doPost(e) {
           explanation: "把目標縮小到兩分鐘內可啟動的小行動（例如每天練五題），最容易跨過拖延門檻。"
         },
         {
-          id: "q_growth_4",
-          text: "在設定目標時，SMART 原則中的「M（Measurable）」代表什麼意義？",
-          options: {
-            A: "目標必須完全憑感覺評估",
-            B: "目標要具備可衡量的具體指標，能清楚追蹤進度",
-            C: "目標只能由主管或老師代為決定",
-            D: "目標應該保密，不要讓任何人知道"
-          },
-          answer: "B",
-          explanation: "Measurable（可衡量）讓我們能透過具體數據（如完成題數、錯誤率變化）客觀看見進步。"
-        },
-        {
-          id: "q_growth_5",
-          text: "當我們在閱讀資訊或做決策時，容易只尋找並相信「支持自己原本想法」的證據，這稱為什麼認知偏誤？",
-          options: {
-            A: "確認偏誤（Confirmation Bias）",
-            B: "月暈效應（Halo Effect）",
-            C: "聚光燈效應（Spotlight Effect）",
-            D: "倖存者偏差（Survivorship Bias）"
-          },
-          answer: "A",
-          explanation: "確認偏誤會讓人忽略反面證據；刻意檢視錯題與不同觀點，是克服確認偏誤的好方法。"
-        },
-        {
-          id: "q_growth_6",
-          text: "在時間管理「艾森豪矩陣（四象限法則）」中，哪一類任務最容易被忽略，卻對長期個人成長最關鍵？",
-          options: {
-            A: "緊急且重要的突發危機",
-            B: "緊急但不重要的瑣碎干擾",
-            C: "重要但不緊急的長期累積（如每日學習、運動與規劃）",
-            D: "既不緊急也不重要的消遣"
-          },
-          answer: "C",
-          explanation: "「重要但不緊急」的事情沒有立即死線，卻是拉開長期實力差距的關鍵投資。"
-        },
-        {
-          id: "q_growth_7",
-          text: "使用「番茄鐘工作法（Pomodoro Technique）」時，最經典的專注與短暫休息節奏為何？",
+          id: "q_lv1_3", level: 1, day: null,
+          text: "【基礎】使用「番茄鐘工作法（Pomodoro Technique）」時，最經典的專注與短暫休息節奏為何？",
           options: {
             A: "連續專注 90 分鐘、休息 1 分鐘",
             B: "專注 25 分鐘、休息 5 分鐘",
@@ -1872,8 +2144,218 @@ function doPost(e) {
           explanation: "25 分鐘專注搭配 5 分鐘休息能維持大腦清晰度，避免長時間疲勞導致效率下滑。"
         },
         {
-          id: "q_growth_8",
-          text: "在網頁或數位工具的設計中，若只統計「每題被選錯的總次數」而不綁定個人作答明細，最符合哪一項原則？",
+          id: "q_lv1_4", level: 1, day: null,
+          text: "【基礎】在設定目標時，SMART 原則中的「M（Measurable）」代表什麼意義？",
+          options: {
+            A: "目標必須完全憑感覺評估",
+            B: "目標要具備可衡量的具體指標，能清楚追蹤進度",
+            C: "目標只能由主管或老師代為決定",
+            D: "目標應該保密，不要讓任何人知道"
+          },
+          answer: "B",
+          explanation: "Measurable（可衡量）讓我們能透過具體數據（如完成天數、錯誤率變化）客觀看見進步。"
+        },
+        {
+          id: "q_lv1_5", level: 1, day: null,
+          text: "【基礎】在學習新知識時，下列哪一種做法屬於「主動提取練習（Active Recall）」？",
+          options: {
+            A: "反覆用螢光筆畫滿整頁重點並默唸",
+            B: "闔上書本，嘗試用自己的話回答問題或進行每日小測驗",
+            C: "把筆記漂亮地抄寫三遍但不思考",
+            D: "只挑自己已經非常熟練的單元一直重看"
+          },
+          answer: "B",
+          explanation: "主動提取迫使大腦從記憶中檢索資訊，比被動重讀更能有效鞏固長期記憶。"
+        },
+        {
+          id: "q_lv1_6", level: 1, day: null,
+          text: "【基礎】在習慣迴路（Cue → Craving → Response → Reward）中，「提示（Cue）」的作用是什麼？",
+          options: {
+            A: "觸發大腦啟動某個行為的線索或情境",
+            B: "行為完成後的最終獎賞",
+            C: "懲罰自己沒有完成任務的機制",
+            D: "完全忽略環境影響的意志力"
+          },
+          answer: "A",
+          explanation: "設計清楚的環境提示（例如每天早餐後打開每日五題），能大幅提升習慣養成的成功率。"
+        },
+
+        // ===== 階段二：進階應用（Level 2，Day 11–20） =====
+        {
+          id: "q_lv2_1", level: 2, day: null,
+          text: "【進階】在時間管理「艾森豪矩陣（四象限法則）」中，哪一類任務最容易被忽略，卻對長期個人成長最關鍵？",
+          options: {
+            A: "緊急且重要的突發危機",
+            B: "緊急但不重要的瑣碎干擾",
+            C: "重要但不緊急的長期累積（如每日學習、運動與規劃）",
+            D: "既不緊急也不重要的消遣"
+          },
+          answer: "C",
+          explanation: "「重要但不緊急」的事情沒有立即死線，卻是拉開長期實力差距的關鍵投資。"
+        },
+        {
+          id: "q_lv2_2", level: 2, day: null,
+          text: "【進階】根據艾賓浩斯遺忘曲線，下列哪一種複習策略最能對抗遺忘並節省總時間？",
+          options: {
+            A: "考前一天熬夜一口氣讀完十小時",
+            B: "間隔重複（Spaced Repetition），在快遺忘前拉長間隔複習",
+            C: "同一天內連續背誦同一章節二十次，之後不再看",
+            D: "完全不複習，只靠第一次閱讀的印象"
+          },
+          answer: "B",
+          explanation: "間隔重複會在記憶即將衰退時重新喚醒神經連結，長期記憶留存率遠高於集中填鴨。"
+        },
+        {
+          id: "q_lv2_3", level: 2, day: null,
+          text: "【進階】「費曼學習法（Feynman Technique）」強調檢驗自己是否真正懂一個概念的最佳方式是什麼？",
+          options: {
+            A: "背出教科書上的完整專有名詞定義",
+            B: "用淺顯白話的方式教會一位完全不懂該領域的初學者",
+            C: "購買最多本相關參考書放在書架上",
+            D: "在筆記本上畫出複雜的裝飾邊框"
+          },
+          answer: "B",
+          explanation: "能用簡單語言講清楚，代表已真正理解核心邏輯；講卡住的地方正是知識盲點所在。"
+        },
+        {
+          id: "q_lv2_4", level: 2, day: null,
+          text: "【進階】在面對複雜任務容易拖延時，「切香腸法（任務拆解）」的核心做法是什麼？",
+          options: {
+            A: "等待靈感完全降臨後再一口氣做完",
+            B: "將龐大目標拆解成數個具體、可獨立執行的小步驟",
+            C: "同時開啟十個不同專案一起進行",
+            D: "把困難的部分永遠留給別人處理"
+          },
+          answer: "B",
+          explanation: "降低任務的認知負荷與不確定性，能迅速消除大腦對未知困難的抗拒感。"
+        },
+        {
+          id: "q_lv2_5", level: 2, day: null,
+          text: "【進階】什麼是「刻意練習（Deliberate Practice）」與一般重複練習最大的差別？",
+          options: {
+            A: "刻意練習只需要花更多時間，不需要目標",
+            B: "刻意練習強調在舒適圈邊緣挑戰弱點，並結合即時回饋修正",
+            C: "刻意練習只重複自己已經最擅長的動作",
+            D: "刻意練習完全不需要任何指導或檢討"
+          },
+          answer: "B",
+          explanation: "單純重複只會固化現有水準；針對易錯題目進行分析與修正，才是刻意練習的精髓。"
+        },
+        {
+          id: "q_lv2_6", level: 2, day: null,
+          text: "【進階】關於「多工處理（Multitasking）」對深度工作的影響，認知心理學研究普遍指出？",
+          options: {
+            A: "同時處理三件複雜工作能讓總效率提升三倍",
+            B: "頻繁切換任務會產生「注意力殘留」，反而降低品質並增加耗時",
+            C: "一邊頻繁回訊息一邊學習完全不會影響記憶力",
+            D: "人類大腦天生適合同時進行多項高認知負荷任務"
+          },
+          answer: "B",
+          explanation: "每次切換任務，大腦都需要重新載入脈絡，注意力殘留會顯著拉低深度思考品質。"
+        },
+
+        // ===== 階段三：深化思辨（Level 3，Day 21–30） =====
+        {
+          id: "q_lv3_1", level: 3, day: null,
+          text: "【深化】當我們在閱讀資訊或做決策時，容易只尋找並相信「支持自己原本想法」的證據，這稱為什麼認知偏誤？",
+          options: {
+            A: "確認偏誤（Confirmation Bias）",
+            B: "月暈效應（Halo Effect）",
+            C: "聚光燈效應（Spotlight Effect）",
+            D: "倖存者偏差（Survivorship Bias）"
+          },
+          answer: "A",
+          explanation: "確認偏誤會讓人忽略反面證據；刻意檢視錯題與不同觀點，是克服確認偏誤的好方法。"
+        },
+        {
+          id: "q_lv3_2", level: 3, day: null,
+          text: "【深化】只觀察成功人士的經驗卻忽略大量失敗者的相同做法，因而誤判成功關鍵，這屬於哪種思考陷阱？",
+          options: {
+            A: "錨定效應（Anchoring Effect）",
+            B: "倖存者偏差（Survivorship Bias）",
+            C: "沉沒成本謬誤（Sunk Cost Fallacy）",
+            D: "達克效應（Dunning-Kruger Effect）"
+          },
+          answer: "B",
+          explanation: "倖存者偏差會讓我們只看見被篩選留下的樣本，忽略了「沉默的證據」。"
+        },
+        {
+          id: "q_lv3_3", level: 3, day: null,
+          text: "【深化】明知某個計畫方向錯誤，卻因為「已經投入太多時間與金錢」而不願止損，這稱為什麼效應？",
+          options: {
+            A: "破窗效應",
+            B: "沉沒成本謬誤（Sunk Cost Fallacy）",
+            C: "旁觀者效應",
+            D: "從眾效應"
+          },
+          answer: "B",
+          explanation: "理性決策應著眼於「未來的邊際效益與成本」，而非無法回收的過去投入。"
+        },
+        {
+          id: "q_lv3_4", level: 3, day: null,
+          text: "【深化】「第一性原理（First Principles Thinking）」在解決問題時，最核心的思維步驟是什麼？",
+          options: {
+            A: "完全照抄競爭對手目前的既有做法",
+            B: "將問題拆解回最基本、不可再分割的事實，再從頭推導解法",
+            C: "只憑直覺與過往慣例快速下結論",
+            D: "依照多數人的意見投票決定"
+          },
+          answer: "B",
+          explanation: "第一性原理幫助我們跳脫「類比思維」的框架限制，從本質重新建構創新方案。"
+        },
+        {
+          id: "q_lv3_5", level: 3, day: null,
+          text: "【深化】「達克效應（Dunning-Kruger Effect）」描述的心理現象為何？",
+          options: {
+            A: "能力越強的人越容易過度膨脹自信",
+            B: "在某領域能力不足的人，往往因為缺乏評估標準而高估自己的表現",
+            C: "每個人都能非常精準客觀地評估自己的能力",
+            D: "經驗豐富的人完全不會懷疑自己"
+          },
+          answer: "B",
+          explanation: "持續透過測驗與客觀回饋校準認知，是跨過「愚昧之山」走向真正精熟的必經之路。"
+        },
+        {
+          id: "q_lv3_6", level: 3, day: null,
+          text: "【深化】在團隊溝通中，面對意見分歧時，哪一種提問方式最有助於推進建設性討論？",
+          options: {
+            A: "「你為什麼總是提出這麼不切實際的想法？」",
+            B: "「我們先對齊共同目標，你認為這個方案最想解決的核心風險是什麼？」",
+            C: "「不用討論了，照我說的做最快。」",
+            D: "「反正最後都會失敗，隨便哪個方案都行。」"
+          },
+          answer: "B",
+          explanation: "將焦點從「人身立場」轉移到「共同目標與假設前提」，能有效降低防衛心理。"
+        },
+
+        // ===== 階段四：高階統整（Level 4，Day 31–40） =====
+        {
+          id: "q_lv4_1", level: 4, day: null,
+          text: "【高階】在系統思考（Systems Thinking）中，「二階思維（Second-Order Thinking）」要求決策者多問哪一個關鍵問題？",
+          options: {
+            A: "這件事現在做起來是不是最輕鬆？",
+            B: "這個決策產生直接結果之後，「接下來還會引發什麼連鎖反應？」",
+            C: "別人現在都在流行做什麼？",
+            D: "如何把短期數據修飾得最好看？"
+          },
+          answer: "B",
+          explanation: "一階思維只看眼前立即好處；二階思維會評估長期連鎖效應與潛在副作用。"
+        },
+        {
+          id: "q_lv4_2", level: 4, day: null,
+          text: "【高階】塔雷伯提出的「反脆弱（Antifragile）」概念，與「強韌（Resilient）」最大的差異為何？",
+          options: {
+            A: "兩者意義完全相同，都是抵抗衝擊不改變",
+            B: "強韌是在衝擊後維持原狀；反脆弱則能從波動與壓力中吸收養分、變得更強",
+            C: "反脆弱是指完全避免任何風險與變化",
+            D: "強韌的系統一遇到壓力就會立刻崩潰"
+          },
+          answer: "B",
+          explanation: "將每次錯題與失敗轉化為系統升級的養分，正是個人能力邁向反脆弱的展現。"
+        },
+        {
+          id: "q_lv4_3", level: 4, day: null,
+          text: "【高階】在數位產品與資料治理中，若只統計「每題被選錯的總次數」而不綁定個人作答明細，最符合哪一項原則？",
           options: {
             A: "資料最小化與隱私保護（Data Minimization）",
             B: "完全公開個資原則",
@@ -1882,21 +2364,57 @@ function doPost(e) {
           },
           answer: "A",
           explanation: "資料最小化原則強調只收集達成目的所需的最低限度數據，兼顧教學分析與個人隱私。"
+        },
+        {
+          id: "q_lv4_4", level: 4, day: null,
+          text: "【高階】在專案風險評估中，「事前驗屍（Pre-mortem）」法的核心步驟是什麼？",
+          options: {
+            A: "等專案徹底失敗後再開會追究責任",
+            B: "在專案開始前假設它已失敗，逆向推演所有可能導致失敗的原因並提前預防",
+            C: "只列出樂觀情境，避免打擊團隊士氣",
+            D: "跳過規劃階段直接上線測試"
+          },
+          answer: "B",
+          explanation: "事前驗屍能打破團隊的盲目樂觀，讓隱性風險在成本最低的規劃階段浮現。"
+        },
+        {
+          id: "q_lv4_5", level: 4, day: null,
+          text: "【高階】「奧卡姆剃刀原則（Occam's Razor）」在分析複雜現象或設計系統時，傳達了什麼核心精神？",
+          options: {
+            A: "越複雜的理論一定越正確",
+            B: "在能同樣有效解釋現象的前提下，應優先選擇假設最少、最簡潔的方案",
+            C: "應忽略所有關鍵細節以追求速度",
+            D: "只保留最舊的傳統做法，拒絕任何新方案"
+          },
+          answer: "B",
+          explanation: "簡潔不是簡陋，而是去除不必要的複雜度，讓系統更可靠、好維護且直指核心。"
+        },
+        {
+          id: "q_lv4_6", level: 4, day: null,
+          text: "【高階】複利思維（Compounding）在 40 天乃至於長期個人成長中，最常讓人中途放棄的原因是什麼？",
+          options: {
+            A: "複利效果在第一天就會立刻爆發",
+            B: "前期累積看似平緩（潛伏期），多數人在臨界點到來前就停止投入",
+            C: "每天進步 1% 最終結果會越來越小",
+            D: "複利只適用於金融投資，不適用於知識學習"
+          },
+          answer: "B",
+          explanation: "知識與習慣的複利呈指數曲線，穩定度過前期的平緩累積，後期將迎來質變躍升。"
         }
       ]
     };
 
     // 本機首次開啟的展示用範例統計（僅在無 GAS 網址且 localStorage 全空時載入一次）
     const DEMO_VISITS = [
-      { username: "小晴", count: 7, lastDate: "2026-11-22" },
-      { username: "阿明", count: 5, lastDate: "2026-11-21" },
-      { username: "林同學", count: 3, lastDate: "2026-11-22" }
+      { username: "小晴", count: 7, lastDate: "2026-11-22", completedDays: [1, 2, 3, 4, 5, 6] },
+      { username: "阿明", count: 5, lastDate: "2026-11-21", completedDays: [1, 2, 3] },
+      { username: "林同學", count: 3, lastDate: "2026-11-22", completedDays: [1, 2] }
     ];
 
     const DEMO_ERRORS = [
       {
-        questionId: "q_growth_5",
-        questionText: "當我們在閱讀資訊或做決策時，容易只尋找並相信「支持自己原本想法」的證據，這稱為什麼認知偏誤？",
+        questionId: "q_lv3_1",
+        questionText: "【深化】當我們在閱讀資訊或做決策時，容易只尋找並相信「支持自己原本想法」的證據，這稱為什麼認知偏誤？",
         totalErrors: 5,
         wrongA: 0,
         wrongB: 2,
@@ -1904,8 +2422,8 @@ function doPost(e) {
         wrongD: 3
       },
       {
-        questionId: "q_growth_6",
-        questionText: "在時間管理「艾森豪矩陣（四象限法則）」中，哪一類任務最容易被忽略，卻對長期個人成長最關鍵？",
+        questionId: "q_lv2_1",
+        questionText: "【進階】在時間管理「艾森豪矩陣（四象限法則）」中，哪一類任務最容易被忽略，卻對長期個人成長最關鍵？",
         totalErrors: 3,
         wrongA: 2,
         wrongB: 1,
@@ -1925,10 +2443,13 @@ function doPost(e) {
       errors: [],
       adminUnlocked: false,
       currentView: "home",
+      currentUser: "", // 目前登入的跨裝置唯一帳號名稱
       // 當次五題測驗狀態（純記憶體暫存，完成後即清除個人作答細節）
       session: {
         active: false,
         username: "",
+        day: 1, // 1~40，若為隨機綜合複習則為 0
+        isRetake: false,
         questions: [],
         index: 0,
         answered: false,
@@ -2100,9 +2621,31 @@ function doPost(e) {
     // 資料存取層（本機 localStorage + 單一 Google Apps Script URL）
     // =========================================================================
     function resolveGasUrl() {
+      // 1. 優先支援分享連結參數 ?gas=https://...（分享給不同人時自動綁定同一份試算表）
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const gasParam = (params.get("gas") || "").trim();
+        if (gasParam && gasParam.startsWith("https://script.google.com/")) {
+          localStorage.setItem(STORAGE_KEYS.GAS_URL, gasParam);
+          return gasParam;
+        }
+      } catch (e) {}
+
       const saved = (localStorage.getItem(STORAGE_KEYS.GAS_URL) || "").trim();
       if (saved) return saved;
       return (DEFAULT_GAS_URL || "").trim();
+    }
+
+    function normalizeVisitRecord(v) {
+      const days = Array.isArray(v.completedDays)
+        ? [...new Set(v.completedDays.map(Number).filter((n) => n >= 1 && n <= 40))].sort((a, b) => a - b)
+        : [];
+      return {
+        username: String(v.username || "").trim(),
+        count: Number(v.count || 0),
+        lastDate: String(v.lastDate || ""),
+        completedDays: days
+      };
     }
 
     function loadLocalState() {
@@ -2125,7 +2668,7 @@ function doPost(e) {
       // 2. 載入來訪與錯題統計（若為本機首次開啟且無 GAS 網址，載入展示範例一次）
       const seeded = localStorage.getItem(STORAGE_KEYS.DEMO_SEEDED);
       if (!state.gasUrl && !seeded && !localStorage.getItem(STORAGE_KEYS.VISITS)) {
-        state.visits = JSON.parse(JSON.stringify(DEMO_VISITS));
+        state.visits = JSON.parse(JSON.stringify(DEMO_VISITS)).map(normalizeVisitRecord);
         state.errors = JSON.parse(JSON.stringify(DEMO_ERRORS)).map(normalizeErrorRecord);
         localStorage.setItem(STORAGE_KEYS.DEMO_SEEDED, "1");
         saveLocalState();
@@ -2134,7 +2677,7 @@ function doPost(e) {
 
       try {
         const rawVisits = JSON.parse(localStorage.getItem(STORAGE_KEYS.VISITS) || "[]");
-        state.visits = Array.isArray(rawVisits) ? rawVisits : [];
+        state.visits = Array.isArray(rawVisits) ? rawVisits.map(normalizeVisitRecord) : [];
       } catch (e) {
         state.visits = [];
       }
@@ -2177,7 +2720,7 @@ function doPost(e) {
         const data = await res.json();
         if (!data || !data.ok) throw new Error(data && data.error ? data.error : "回傳格式不正確");
 
-        if (Array.isArray(data.visits)) state.visits = data.visits;
+        if (Array.isArray(data.visits)) state.visits = data.visits.map(normalizeVisitRecord);
         if (Array.isArray(data.errors)) state.errors = data.errors.map(normalizeErrorRecord);
         if (typeof data.hasAdminPassword === "boolean") {
           state.hasAdminPassword = data.hasAdminPassword;
@@ -2272,8 +2815,254 @@ function doPost(e) {
         []
       );
 
+      renderHomeDashboard();
       renderStats();
       renderAdmin();
+    }
+
+    // =========================================================================
+    // 跨裝置唯一帳號與 40 天由淺入深題庫分派
+    // =========================================================================
+    function getUserRecord(username) {
+      const found = state.visits.find((v) => v.username === username);
+      if (found) return found;
+      return { username, count: 0, lastDate: "", completedDays: [] };
+    }
+
+    function upsertLocalUserRecord(userObj) {
+      const norm = normalizeVisitRecord(userObj);
+      const idx = state.visits.findIndex((v) => v.username === norm.username);
+      if (idx >= 0) state.visits[idx] = norm;
+      else state.visits.push(norm);
+      saveLocalState();
+    }
+
+    function getNextRecommendedDay(completedDays) {
+      const doneSet = new Set(completedDays || []);
+      for (let d = 1; d <= 40; d++) {
+        if (!doneSet.has(d)) return d;
+      }
+      return 40;
+    }
+
+    async function handleUserLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById("username-input").value.trim();
+      if (!username) {
+        showToast("請輸入您的用戶名稱", "warning");
+        return;
+      }
+
+      const btn = document.getElementById("login-submit-btn");
+      btn.disabled = true;
+
+      try {
+        if (state.gasUrl) {
+          setSyncing(true, `正在跨裝置同步「${username}」的 40 天帳號進度...`);
+          const res = await postToGas({
+            action: "loginUser",
+            username,
+            date: getTodayStr()
+          });
+          if (res && res.ok && res.user) {
+            upsertLocalUserRecord(res.user);
+            showToast(
+              res.isNew
+                ? `已建立唯一帳號「${username}」，歡迎展開 40 天練習！`
+                : `歡迎回來，${username}！已載入您的跨裝置進度（已完成 ${res.user.completedDays.length} / 40 天）`,
+              "success"
+            );
+          } else {
+            throw new Error((res && res.error) || "雲端登入失敗");
+          }
+        } else {
+          const existing = state.visits.find((v) => v.username === username);
+          if (!existing) {
+            upsertLocalUserRecord({ username, count: 0, lastDate: getTodayStr(), completedDays: [] });
+            showToast(`已建立本機帳號「${username}」，開始您的 40 天旅程！`, "success");
+          } else {
+            showToast(`歡迎回來，${username}！`, "success");
+          }
+        }
+
+        state.currentUser = username;
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, username);
+        renderAll();
+      } catch (err) {
+        console.error("Login error:", err);
+        // 即使網路暫時異常，仍允許使用本機快取進入
+        state.currentUser = username;
+        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, username);
+        renderAll();
+        showToast("雲端連線暫時異常，已先載入本機進度", "warning");
+      } finally {
+        btn.disabled = false;
+        setSyncing(false);
+      }
+    }
+
+    async function syncCurrentUserFromCloud() {
+      if (!state.gasUrl) {
+        showToast("目前為本機展示模式；設定 GAS 網址後即可跨裝置同步。", "info");
+        return;
+      }
+      await syncFromGas(false);
+    }
+
+    function switchUserAccount() {
+      state.currentUser = "";
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      document.getElementById("username-input").value = "";
+      resetToHome();
+      renderHomeDashboard();
+      showToast("已切換帳號，可輸入其他名字登入", "info");
+    }
+
+    function renderHomeDashboard() {
+      const loginCard = document.getElementById("home-login-card");
+      const dashPanel = document.getElementById("home-dashboard-panel");
+
+      if (!state.currentUser) {
+        loginCard.classList.remove("hidden");
+        dashPanel.classList.add("hidden");
+        return;
+      }
+
+      loginCard.classList.add("hidden");
+      dashPanel.classList.remove("hidden");
+
+      const rec = getUserRecord(state.currentUser);
+      const completedDays = rec.completedDays || [];
+      const doneSet = new Set(completedDays);
+      const nextDay = getNextRecommendedDay(completedDays);
+      const nextStage = getStageByDay(nextDay);
+      const pct = Math.round((completedDays.length / 40) * 100);
+
+      document.getElementById("dash-avatar").textContent = state.currentUser.slice(0, 1).toUpperCase();
+      document.getElementById("dash-username").textContent = state.currentUser;
+      document.getElementById("dash-progress-text").textContent =
+        `已完成 ${completedDays.length} / 40 天 • 累計練習 ${rec.count} 次${rec.lastDate ? " • 最近：" + rec.lastDate : ""}`;
+
+      const pill = document.getElementById("dash-next-stage-pill");
+      pill.className = `stage-pill ${nextStage.cssClass}`;
+      pill.textContent = `${nextStage.name}（${nextStage.tag}）`;
+
+      const isAllDone = completedDays.length >= 40;
+      document.getElementById("dash-next-hint").textContent = isAllDone
+        ? "🎉 恭喜完成全部 40 天！可隨時重複考任一天"
+        : "依進度推薦今日關卡";
+      document.getElementById("dash-next-title").textContent = isAllDone
+        ? "第 40 天・圓滿精進複習"
+        : `第 ${nextDay} 天・每日五題挑戰`;
+      document.getElementById("dash-start-next-btn").querySelector("span").textContent = isAllDone
+        ? "重考第 40 天"
+        : `開始第 ${nextDay} 天練習`;
+
+      document.getElementById("dash-progress-pct").textContent = `${pct}% (${completedDays.length}/40)`;
+      document.getElementById("dash-progress-bar").style.width = `${pct}%`;
+
+      // 渲染 4 大階段 × 10 天 = 40 天地圖
+      const mapEl = document.getElementById("forty-days-map");
+      mapEl.innerHTML = STAGES.map((stage) => {
+        let stageDone = 0;
+        const tiles = [];
+        for (let d = stage.startDay; d <= stage.endDay; d++) {
+          const isDone = doneSet.has(d);
+          if (isDone) stageDone++;
+          const isNext = !isAllDone && d === nextDay;
+          const cls = isDone ? "is-done" : (isNext ? "is-next" : "");
+          const subText = isDone ? "✓ 重考" : (isNext ? "今日" : "挑戰");
+          tiles.push(`
+            <button type="button" class="day-tile ${cls}" onclick="startDayQuiz(${d})" title="第 ${d} 天（${stage.tag}）">
+              <span class="day-num">D${d}</span>
+              <span class="day-sub">${subText}</span>
+            </button>
+          `);
+        }
+        return `
+          <div class="stage-block">
+            <div class="stage-head">
+              <div class="stage-title">
+                <span>${stage.name}</span>
+                <span class="stage-pill ${stage.cssClass}">${stage.tag}（Day ${stage.startDay}–${stage.endDay}）</span>
+              </div>
+              <span style="font-size:12.5px; font-weight:700; color:var(--text-muted);">${stageDone} / 10 天</span>
+            </div>
+            <div class="days-grid">${tiles.join("")}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // 決定性偽隨機洗牌（確保同一天固定出同一組 5 題，且每天不同、由淺入深）
+    function seededShuffle(arr, seed) {
+      const copy = [...arr];
+      let s = seed >>> 0;
+      function nextRand() {
+        s = (s * 1664525 + 1013904223) >>> 0;
+        return s / 4294967296;
+      }
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(nextRand() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function inferQuestionLevel(q, index, total) {
+      if (q.level && [1, 2, 3, 4].includes(Number(q.level))) return Number(q.level);
+      if (q.day && Number(q.day) >= 1 && Number(q.day) <= 40) {
+        return getStageByDay(Number(q.day)).level;
+      }
+      const ratio = total > 0 ? index / total : 0;
+      if (ratio < 0.25) return 1;
+      if (ratio < 0.5) return 2;
+      if (ratio < 0.75) return 3;
+      return 4;
+    }
+
+    // 取得指定天數（1–40）的固定 5 題（優先取指定 day 的題目，不足則由該難度階段決定性補齊）
+    function getQuestionsForDay(day) {
+      const all = state.bank.questions || [];
+      if (all.length === 0) return [];
+      const targetStage = getStageByDay(day);
+
+      // 1. 優先選取明確指定給這一天的題目
+      const exactDayQs = all.filter((q) => Number(q.day) === day);
+      if (exactDayQs.length >= 5) {
+        return exactDayQs.slice(0, 5);
+      }
+
+      const selected = [...exactDayQs];
+      const usedIds = new Set(selected.map((q) => q.id));
+
+      // 2. 同難度階段的候選題（由淺入深核心保證）
+      const sameLevelPool = all.filter((q, idx) =>
+        !usedIds.has(q.id) && inferQuestionLevel(q, idx, all.length) === targetStage.level
+      );
+      const shuffledSame = seededShuffle(sameLevelPool, day * 7919 + 137);
+      for (const q of shuffledSame) {
+        if (selected.length >= 5) break;
+        selected.push(q);
+        usedIds.add(q.id);
+      }
+
+      // 3. 若該階段題目仍不足 5 題，從相近難度由近而遠補齊
+      if (selected.length < 5) {
+        const fallbackPool = all
+          .map((q, idx) => ({ q, dist: Math.abs(inferQuestionLevel(q, idx, all.length) - targetStage.level) }))
+          .filter((item) => !usedIds.has(item.q.id))
+          .sort((a, b) => a.dist - b.dist)
+          .map((item) => item.q);
+        const shuffledFallback = seededShuffle(fallbackPool, day * 3571 + 41);
+        for (const q of shuffledFallback) {
+          if (selected.length >= 5) break;
+          selected.push(q);
+          usedIds.add(q.id);
+        }
+      }
+
+      return selected;
     }
 
     // =========================================================================
@@ -2288,11 +3077,15 @@ function doPost(e) {
       return copy;
     }
 
-    function handleStartQuiz(e) {
-      e.preventDefault();
-      const username = document.getElementById("username-input").value.trim();
-      if (!username) {
-        showToast("請先輸入您的用戶名稱", "warning");
+    function startRecommendedDay() {
+      const rec = getUserRecord(state.currentUser);
+      const nextDay = getNextRecommendedDay(rec.completedDays);
+      startDayQuiz(nextDay);
+    }
+
+    function startDayQuiz(dayNum) {
+      if (!state.currentUser) {
+        showToast("請先輸入用戶名稱登入", "warning");
         return;
       }
       if (!state.bank.questions || state.bank.questions.length === 0) {
@@ -2300,13 +3093,15 @@ function doPost(e) {
         return;
       }
 
-      const drawCount = Math.min(5, state.bank.questions.length);
-      const picked = shuffle(state.bank.questions).slice(0, drawCount);
-      const today = getTodayStr();
+      const picked = getQuestionsForDay(dayNum);
+      const rec = getUserRecord(state.currentUser);
+      const isRetake = (rec.completedDays || []).includes(dayNum);
 
       state.session = {
         active: true,
-        username,
+        username: state.currentUser,
+        day: dayNum,
+        isRetake,
         questions: picked,
         index: 0,
         answered: false,
@@ -2314,28 +3109,37 @@ function doPost(e) {
         stepStatus: []
       };
 
-      // 更新來訪頻率（本機立即更新，雲端模式背景呼叫 GAS recordVisit）
-      const vIdx = state.visits.findIndex((v) => v.username === username);
-      if (vIdx >= 0) {
-        state.visits[vIdx].count = Number(state.visits[vIdx].count || 0) + 1;
-        state.visits[vIdx].lastDate = today;
-      } else {
-        state.visits.push({ username, count: 1, lastDate: today });
-      }
-      saveLocalState();
-      renderStats();
+      document.getElementById("home-start-panel").classList.add("hidden");
+      document.getElementById("quiz-result-panel").classList.add("hidden");
+      document.getElementById("quiz-play-panel").classList.remove("hidden");
+      renderCurrentQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
 
-      if (state.gasUrl) {
-        postToGas({ action: "recordVisit", username, date: today }).catch((err) => {
-          console.error("recordVisit error:", err);
-        });
+    function startRandomReview() {
+      if (!state.currentUser) return;
+      if (!state.bank.questions || state.bank.questions.length === 0) {
+        showToast("目前題庫內沒有題目", "warning");
+        return;
       }
+      const picked = shuffle(state.bank.questions).slice(0, Math.min(5, state.bank.questions.length));
+      state.session = {
+        active: true,
+        username: state.currentUser,
+        day: 0, // 0 表示自由隨機複習
+        isRetake: true,
+        questions: picked,
+        index: 0,
+        answered: false,
+        score: 0,
+        stepStatus: []
+      };
 
       document.getElementById("home-start-panel").classList.add("hidden");
       document.getElementById("quiz-result-panel").classList.add("hidden");
       document.getElementById("quiz-play-panel").classList.remove("hidden");
-
       renderCurrentQuestion();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     function renderCurrentQuestion() {
@@ -2344,29 +3148,147 @@ function doPost(e) {
       const total = s.questions.length;
 
       document.getElementById("quiz-user-label").textContent = s.username;
+      const dayBadge = document.getElementById("quiz-day-badge");
+      if (s.day >= 1 && s.day <= 40) {
+        const stg = getStageByDay(s.day);
+        dayBadge.textContent = `第 ${s.day} 天・${stg.tag}${s.isRetake ? "（重考）" : ""}`;
+      } else {
+        dayBadge.textContent = "綜合隨機測驗";
+      }
       document.getElementById("quiz-step-label").textContent = `第 ${s.index + 1} / ${total} 步`;
       document.getElementById("quiz-trail-live").innerHTML = buildGrowthTrailSVG(total, s.index, s.stepStatus);
       document.getElementById("quiz-question-text").textContent = q.text;
 
+      // 重置回饋區與下一題按鈕狀態
       document.getElementById("quiz-feedback").classList.add("hidden");
       document.getElementById("quiz-next-btn").classList.add("hidden");
       s.answered = false;
 
-      const listEl = document.getElementById("quiz-options-list");
-      listEl.innerHTML = "";
-
-      ["A", "B", "C", "D"].forEach((key) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.id = `quiz-opt-${key}`;
-        btn.className = "option-btn";
-        btn.onclick = () => handleSelectOption(key);
-        btn.innerHTML = `
+      // 渲染 A/B/C/D 四個選項按鈕
+      const optionsList = document.getElementById("quiz-options-list");
+      optionsList.innerHTML = ["A", "B", "C", "D"].map((key) => `
+        <button type="button" id="quiz-opt-${key}" class="option-btn" onclick="handleSelectOption('${key}')">
           <span class="option-key">${key}</span>
-          <span class="option-text">${escapeHTML(q.options[key] || "")}</span>
-        `;
-        listEl.appendChild(btn);
+          <span class="option-text">${escapeHTML((q.options && q.options[key]) || "")}</span>
+        </button>
+      `).join("");
+    }
+
+    async function finishQuiz() {
+      const s = state.session;
+      const total = s.questions.length;
+      const today = getTodayStr();
+
+      // 更新本機使用者完成進度與來訪次數
+      const rec = getUserRecord(s.username);
+      const nextDays = [...(rec.completedDays || [])];
+      if (s.day >= 1 && s.day <= 40 && !nextDays.includes(s.day)) {
+        nextDays.push(s.day);
+        nextDays.sort((a, b) => a - b);
+      }
+      upsertLocalUserRecord({
+        username: s.username,
+        count: Number(rec.count || 0) + 1,
+        lastDate: today,
+        completedDays: nextDays
       });
+
+      // 雲端同步 recordDayComplete
+      if (state.gasUrl) {
+        postToGas({
+          action: "recordDayComplete",
+          username: s.username,
+          day: s.day,
+          date: today
+        }).then((res) => {
+          if (res && res.ok && res.user) {
+            upsertLocalUserRecord(res.user);
+            renderHomeDashboard();
+            renderStats();
+          }
+        }).catch((err) => {
+          console.error("recordDayComplete error:", err);
+        });
+      }
+
+      renderHomeDashboard();
+      renderStats();
+
+      document.getElementById("quiz-play-panel").classList.add("hidden");
+      document.getElementById("quiz-result-panel").classList.remove("hidden");
+
+      document.getElementById("result-day-label").textContent =
+        s.day >= 1 && s.day <= 40 ? `第 ${s.day} 天成長小徑已完成` : "綜合隨機測驗已完成";
+      document.getElementById("result-heading").textContent =
+        s.day >= 1 && s.day <= 40 ? `第 ${s.day} 天五題練習完成！` : "綜合隨機五題完成！";
+      document.getElementById("result-trail-tag").textContent = `${total} / ${total} 里程碑`;
+      document.getElementById("result-trail-final").innerHTML = buildGrowthTrailSVG(total, total, s.stepStatus);
+      document.getElementById("result-username").textContent = s.username;
+      document.getElementById("result-score").textContent = s.score;
+      document.getElementById("result-total").textContent = total;
+
+      const nextDayBtn = document.getElementById("result-next-day-btn");
+      const retakeBtn = document.getElementById("result-retake-btn");
+      if (s.day >= 1 && s.day < 40) {
+        nextDayBtn.textContent = `挑戰第 ${s.day + 1} 天`;
+        nextDayBtn.classList.remove("hidden");
+        retakeBtn.textContent = `重考第 ${s.day} 天`;
+      } else if (s.day === 40) {
+        nextDayBtn.classList.add("hidden");
+        retakeBtn.textContent = "重考第 40 天";
+      } else {
+        nextDayBtn.textContent = "再抽五題複習";
+        nextDayBtn.classList.remove("hidden");
+        retakeBtn.classList.add("hidden");
+      }
+
+      const ratio = total > 0 ? s.score / total : 0;
+      let comment = "每一次練習都在為未來累積能量，明天見！";
+      if (ratio === 1) comment = "全數答對！今天的步伐非常穩健，太棒了！";
+      else if (ratio >= 0.8) comment = "表現相當出色，把答錯的那題觀念收進口袋就完美了！";
+      else if (ratio >= 0.6) comment = "不錯的節奏，錯題正是最好的成長養分！";
+      document.getElementById("result-comment").textContent = comment;
+
+      const syncNoteEl = document.getElementById("result-sync-note");
+      if (state.gasUrl) {
+        syncNoteEl.textContent = "✓ 已同步至 Google 試算表（更新您的跨裝置 40 天進度與匿名錯題統計）";
+      } else {
+        syncNoteEl.textContent = "✓ 已更新本機 40 天進度與匿名錯題統計（未留存個人分數）";
+      }
+
+      s.active = false;
+    }
+
+    function handleResultNextDay() {
+      if (state.session.day >= 1 && state.session.day < 40) {
+        startDayQuiz(state.session.day + 1);
+      } else {
+        startRandomReview();
+      }
+    }
+
+    function handleResultRetake() {
+      if (state.session.day >= 1 && state.session.day <= 40) {
+        startDayQuiz(state.session.day);
+      } else {
+        startRandomReview();
+      }
+    }
+
+    function confirmAbortQuiz() {
+      openConfirmModal(
+        "返回 40 天地圖？",
+        "確定要結束目前的五題練習並返回 40 天成長地圖嗎？（本次尚未完成的練習不會標記為通關）",
+        () => resetToHome()
+      );
+    }
+
+    function resetToHome() {
+      state.session.active = false;
+      document.getElementById("quiz-play-panel").classList.add("hidden");
+      document.getElementById("quiz-result-panel").classList.add("hidden");
+      document.getElementById("home-start-panel").classList.remove("hidden");
+      renderHomeDashboard();
     }
 
     function handleSelectOption(chosenKey) {
@@ -2465,53 +3387,8 @@ function doPost(e) {
         s.index += 1;
         renderCurrentQuestion();
       } else {
-        finishQuiz();
+        await finishQuiz();
       }
-    }
-
-    function finishQuiz() {
-      const s = state.session;
-      const total = s.questions.length;
-
-      document.getElementById("quiz-play-panel").classList.add("hidden");
-      document.getElementById("quiz-result-panel").classList.remove("hidden");
-
-      document.getElementById("result-trail-tag").textContent = `${total} / ${total} 里程碑`;
-      document.getElementById("result-trail-final").innerHTML = buildGrowthTrailSVG(total, total, s.stepStatus);
-      document.getElementById("result-username").textContent = s.username;
-      document.getElementById("result-score").textContent = s.score;
-      document.getElementById("result-total").textContent = total;
-
-      const ratio = total > 0 ? s.score / total : 0;
-      let comment = "每一次練習都在為未來累積能量，明天見！";
-      if (ratio === 1) comment = "全數答對！今天的步伐非常穩健，太棒了！";
-      else if (ratio >= 0.8) comment = "表現相當出色，把答錯的那題觀念收進口袋就完美了！";
-      else if (ratio >= 0.6) comment = "不錯的節奏，錯題正是最好的成長養分！";
-      document.getElementById("result-comment").textContent = comment;
-
-      const syncNoteEl = document.getElementById("result-sync-note");
-      if (state.gasUrl) {
-        syncNoteEl.textContent = "✓ 已同步至 Google 試算表（僅紀錄來訪頻率與匿名錯題統計，未留存個人作答明細）";
-      } else {
-        syncNoteEl.textContent = "✓ 已更新本機展示統計（未留存個人作答明細或分數）";
-      }
-
-      s.active = false;
-    }
-
-    function confirmAbortQuiz() {
-      openConfirmModal(
-        "返回首頁？",
-        "確定要結束目前的五題練習並返回首頁嗎？",
-        () => resetToHome()
-      );
-    }
-
-    function resetToHome() {
-      state.session.active = false;
-      document.getElementById("quiz-play-panel").classList.add("hidden");
-      document.getElementById("quiz-result-panel").classList.add("hidden");
-      document.getElementById("home-start-panel").classList.remove("hidden");
     }
 
     // =========================================================================
@@ -2537,37 +3414,42 @@ function doPost(e) {
       document.getElementById("kpi-total-errors").textContent = totalErrors;
       document.getElementById("kpi-bank-count").textContent = state.bank.questions.length;
 
-      // 1. 來訪用戶頻率表格＋長條圖
+      // 1. 來訪用戶頻率表格＋40 天進度
       const visitsBody = document.getElementById("stats-visits-body");
-      const sortedVisits = [...state.visits].sort((a, b) => Number(b.count || 0) - Number(a.count || 0));
+      const sortedVisits = [...state.visits].sort((a, b) =>
+        (b.completedDays ? b.completedDays.length : 0) - (a.completedDays ? a.completedDays.length : 0) ||
+        Number(b.count || 0) - Number(a.count || 0)
+      );
 
       if (sortedVisits.length === 0) {
         visitsBody.innerHTML = `<div style="text-align:center; padding:24px 0; color:var(--text-light); font-size:14px;">目前尚無來訪練習紀錄。</div>`;
       } else {
-        const maxCount = Math.max(...sortedVisits.map((v) => Number(v.count || 1)), 1);
         visitsBody.innerHTML = `
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
                   <th style="width:46px;">排名</th>
-                  <th>用戶名稱</th>
-                  <th class="hide-sm" style="width:36%;">來訪頻率分布</th>
-                  <th style="text-align:right;">累計次數</th>
-                  <th style="text-align:right;">最近來訪日期</th>
+                  <th>用戶名稱（唯一帳號）</th>
+                  <th class="hide-sm" style="width:32%;">40 天完成進度</th>
+                  <th style="text-align:right;">完成天數</th>
+                  <th style="text-align:right;">累計練習</th>
+                  <th style="text-align:right;">最近來訪</th>
                 </tr>
               </thead>
               <tbody>
                 ${sortedVisits.map((v, idx) => {
-                  const pct = Math.max(8, Math.round((Number(v.count || 0) / maxCount) * 100));
+                  const doneCnt = Array.isArray(v.completedDays) ? v.completedDays.length : 0;
+                  const pct = Math.min(100, Math.round((doneCnt / 40) * 100));
                   return `
                     <tr>
                       <td style="font-weight:700; color:var(--text-light);">#${idx + 1}</td>
                       <td style="font-weight:700;">${escapeHTML(v.username)}</td>
                       <td class="hide-sm">
-                        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;"></div></div>
+                        <div class="bar-track"><div class="bar-fill" style="width:${Math.max(pct, doneCnt > 0 ? 5 : 0)}%;"></div></div>
                       </td>
-                      <td style="text-align:right; font-weight:700; color:var(--primary);">${Number(v.count || 0)} 次</td>
+                      <td style="text-align:right; font-weight:700; color:var(--primary);">${doneCnt} / 40 天</td>
+                      <td style="text-align:right; font-weight:600; color:var(--text-main);">${Number(v.count || 0)} 次</td>
                       <td style="text-align:right; color:var(--text-muted); font-size:13px;">${escapeHTML(v.lastDate || "-")}</td>
                     </tr>
                   `;
@@ -2744,7 +3626,7 @@ function doPost(e) {
       // 顯示 GAS ADMIN_PASSWORD 檢查狀態
       if (isCloudMode && state.hasAdminPassword === true) {
         pwdStatusBadge.className = "tag tag-primary";
-        pwdStatusBadge.textContent = "GAS 已設定 ADMIN_PASSWORD";
+        pwdStatusBadge.textContent = "已設定 ADMIN_PASSWORD";
         pwdStatusBadge.classList.remove("hidden");
       } else if (isCloudMode && state.hasAdminPassword === false) {
         pwdStatusBadge.className = "tag tag-accent";
@@ -2754,22 +3636,28 @@ function doPost(e) {
         pwdStatusBadge.classList.add("hidden");
       }
 
-      document.getElementById("gas-url-input").value = state.gasUrl;
-      document.getElementById("admin-title-input").value = state.bank.title;
+      document.getElementById("gas-url-input").value = state.gasUrl || "";
+      document.getElementById("admin-title-input").value = state.bank.title || "";
       document.getElementById("admin-subtitle-input").value = state.bank.subtitle || "";
       document.getElementById("admin-q-count").textContent = state.bank.questions.length;
 
       const listEl = document.getElementById("admin-questions-list");
-      if (state.bank.questions.length === 0) {
-        listEl.innerHTML = `<div style="text-align:center; padding:24px; border:1.5px dashed var(--border); border-radius:14px; color:var(--text-light); font-size:13.5px;">尚無題目，請點擊上方「新增題目」或「匯入 JSON」。</div>`;
+      if (!state.bank.questions || state.bank.questions.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:24px 0; color:var(--text-light); font-size:14px;">目前題庫沒有題目，請點擊上方「＋ 新增題目」或「匯入 JSON」。</div>`;
         return;
       }
 
-      listEl.innerHTML = state.bank.questions.map((q, idx) => `
+      listEl.innerHTML = state.bank.questions.map((q, idx) => {
+        const lv = inferQuestionLevel(q, idx, state.bank.questions.length);
+        const stg = getStageByLevel(lv);
+        const dayTag = q.day ? `<span class="tag tag-accent">指定 Day ${escapeHTML(q.day)}</span>` : "";
+        return `
         <div class="admin-q-item">
           <div style="flex:1; min-width:0;">
-            <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+            <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:6px;">
               <span class="tag tag-neutral">#${idx + 1}</span>
+              <span class="stage-pill ${stg.cssClass}">${stg.tag}</span>
+              ${dayTag}
               <span class="tag tag-primary">正解：${escapeHTML(q.answer)}</span>
             </div>
             <div style="font-weight:700; font-size:14.5px;">${escapeHTML(q.text)}</div>
@@ -2786,7 +3674,22 @@ function doPost(e) {
             <button class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="confirmDeleteQuestion('${escapeHTML(q.id)}')">刪除</button>
           </div>
         </div>
-      `).join("");
+      `;
+      }).join("");
+    }
+
+    function copyShareLink() {
+      const base = window.location.origin + window.location.pathname;
+      const gas = (state.gasUrl || "").trim();
+      if (!gas) {
+        showToast("請先設定並儲存 Google Apps Script 網址，才能讓不同裝置共用題庫與帳號。", "warning");
+        return;
+      }
+      // 若已寫死 DEFAULT_GAS_URL，直接分享乾淨網址；否則附上 ?gas= 參數自動綁定
+      const shareUrl = (DEFAULT_GAS_URL || "").trim() === gas
+        ? base
+        : `${base}?gas=${encodeURIComponent(gas)}`;
+      copyToClipboard(shareUrl);
     }
 
     // 1. GAS 網址管理
@@ -2897,7 +3800,8 @@ function doPost(e) {
     function openQuestionModal(editId = null) {
       document.getElementById("question-form").reset();
       if (editId) {
-        const q = state.bank.questions.find((item) => item.id === editId);
+        const idx = state.bank.questions.findIndex((item) => item.id === editId);
+        const q = state.bank.questions[idx];
         if (!q) return;
         document.getElementById("q-modal-title").textContent = "編輯題目";
         document.getElementById("q-edit-id").value = q.id;
@@ -2907,10 +3811,14 @@ function doPost(e) {
         document.getElementById("q-input-c").value = q.options.C || "";
         document.getElementById("q-input-d").value = q.options.D || "";
         document.getElementById("q-input-answer").value = q.answer || "A";
+        document.getElementById("q-input-level").value = String(inferQuestionLevel(q, idx, state.bank.questions.length));
+        document.getElementById("q-input-day").value = q.day ? String(q.day) : "";
         document.getElementById("q-input-exp").value = q.explanation || "";
       } else {
         document.getElementById("q-modal-title").textContent = "新增題目";
         document.getElementById("q-edit-id").value = "";
+        document.getElementById("q-input-level").value = "1";
+        document.getElementById("q-input-day").value = "";
       }
       document.getElementById("question-modal").classList.remove("hidden");
     }
@@ -2922,8 +3830,14 @@ function doPost(e) {
     async function handleSaveQuestion(e) {
       e.preventDefault();
       const editId = document.getElementById("q-edit-id").value;
+      const rawDay = document.getElementById("q-input-day").value.trim();
+      const parsedDay = rawDay ? Math.min(40, Math.max(1, parseInt(rawDay, 10))) : null;
+      const levelVal = parseInt(document.getElementById("q-input-level").value, 10) || 1;
+
       const qObj = {
         id: editId || `q_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        level: parsedDay ? getStageByDay(parsedDay).level : levelVal,
+        day: parsedDay,
         text: document.getElementById("q-input-text").value.trim(),
         options: {
           A: document.getElementById("q-input-a").value.trim(),
@@ -3012,8 +3926,14 @@ function doPost(e) {
             throw new Error(`第 ${i + 1} 題缺少必要欄位（text、options、answer）`);
           }
           const ans = String(q.answer).trim().toUpperCase();
+          const dayNum = q.day && Number(q.day) >= 1 && Number(q.day) <= 40 ? Number(q.day) : null;
+          const lvlNum = q.level && [1, 2, 3, 4].includes(Number(q.level))
+            ? Number(q.level)
+            : (dayNum ? getStageByDay(dayNum).level : inferQuestionLevel(q, i, list.length));
           return {
             id: q.id ? String(q.id) : `q_imp_${Date.now()}_${i}`,
+            level: lvlNum,
+            day: dayNum,
             text: String(q.text).trim(),
             options: {
               A: String(q.options.A || "").trim(),
@@ -3089,6 +4009,7 @@ function doPost(e) {
     // =========================================================================
     window.addEventListener("DOMContentLoaded", async () => {
       state.gasUrl = resolveGasUrl();
+      state.currentUser = (localStorage.getItem(STORAGE_KEYS.CURRENT_USER) || "").trim();
       loadLocalState();
       renderAll();
 
@@ -3098,7 +4019,7 @@ function doPost(e) {
         navigateTo(hash);
       }
 
-      // 若已設定單一 GAS 網址，自動於背景同步一次最新資料
+      // 若已設定單一 GAS 網址，自動於背景同步一次最新題庫與跨裝置帳號進度
       if (state.gasUrl) {
         await syncFromGas(true);
       }
