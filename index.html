@@ -1,1 +1,2885 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>每日五題・成長小徑練習</title>
+  <style>
+    /* =====================================================================
+       設計系統變數（Daily Five Growth / Trail 風格）
+       ===================================================================== */
+    :root {
+      --bg-cream: #F8F7F4;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F2F0EA;
+      --primary: #2F6F5E;
+      --primary-hover: #245749;
+      --primary-soft: #EAF3F0;
+      --primary-border: #C5DFD7;
+      --accent: #D97742;
+      --accent-soft: #FDF2EC;
+      --accent-border: #F2CDB8;
+      --danger: #C84B31;
+      --danger-soft: #FCEEEB;
+      --danger-border: #F3C4BA;
+      --text-main: #1F2937;
+      --text-muted: #5A6577;
+      --text-light: #8A94A6;
+      --border: #E7E5DF;
+      --shadow-sm: 0 2px 8px rgba(31, 41, 55, 0.04);
+      --shadow-md: 0 8px 24px rgba(31, 41, 55, 0.07);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-pill: 999px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Segoe UI", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    button, input, textarea, select {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =====================================================================
+       頂部導覽列
+       ===================================================================== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(248, 247, 244, 0.9);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(47, 111, 94, 0.22);
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+      line-height: 1.25;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .status-dot.connected {
+      background: var(--primary);
+      box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.16);
+    }
+
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      background: var(--bg-subtle);
+      padding: 4px;
+      border-radius: 14px;
+      gap: 4px;
+    }
+
+    .nav-btn {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+    }
+
+    .nav-btn.active {
+      background: var(--bg-card);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(31, 41, 55, 0.06);
+    }
+
+    /* =====================================================================
+       主容器與卡片通用元件
+       ===================================================================== */
+    .main-container {
+      flex: 1;
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 18px 48px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 24px;
+    }
+
+    .card + .card {
+      margin-top: 20px;
+    }
+
+    .fade-in {
+      animation: fadeIn 0.28s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 同步提示條 */
+    .sync-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(47, 111, 94, 0.25);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 按鈕樣式 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border-radius: 12px;
+      font-size: 14.5px;
+      font-weight: 600;
+      transition: all 0.16s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(47, 111, 94, 0.18);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-accent:hover:not(:disabled) {
+      filter: brightness(0.93);
+    }
+
+    .btn-secondary {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #E8E5DC;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover:not(:disabled) {
+      background: var(--bg-subtle);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      filter: brightness(0.92);
+    }
+
+    .btn-sm {
+      padding: 7px 13px;
+      font-size: 13px;
+      border-radius: 10px;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    /* 輸入欄位 */
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .input, .textarea, .select {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: #FCFBF9;
+      font-size: 14.5px;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      outline: none;
+    }
+
+    .input:focus, .textarea:focus, .select:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(47, 111, 94, 0.12);
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 76px;
+    }
+
+    /* =====================================================================
+       五步成長小徑 SVG 容器
+       ===================================================================== */
+    .trail-box {
+      background: linear-gradient(180deg, #F4F8F6 0%, #FAF9F5 100%);
+      border: 1px solid var(--primary-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px 10px;
+      margin-bottom: 20px;
+    }
+
+    .trail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .trail-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 92px;
+    }
+
+    @keyframes pulseRing {
+      0% { r: 13; opacity: 0.7; }
+      70% { r: 21; opacity: 0; }
+      100% { r: 21; opacity: 0; }
+    }
+
+    .node-pulse {
+      animation: pulseRing 1.8s ease-out infinite;
+    }
+
+    /* =====================================================================
+       首頁 (#home)
+       ===================================================================== */
+    .home-wrap {
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .hero-subtitle {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .privacy-badge {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      border-radius: 14px;
+      padding: 13px 15px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #214F42;
+      line-height: 1.55;
+    }
+
+    .privacy-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* =====================================================================
+       答題介面 (#quiz)
+       ===================================================================== */
+    .quiz-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .question-text {
+      font-size: 18.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.55;
+      margin-bottom: 18px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: #FCFBF9;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.16s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .option-key {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1.5px solid #D5D2C9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .option-text {
+      font-size: 15px;
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-top: 2px;
+    }
+
+    .option-btn.is-correct {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+
+    .option-btn.is-correct .option-key {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .option-btn.is-wrong {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .option-btn.is-wrong .option-key {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #fff;
+    }
+
+    .option-btn.is-dimmed {
+      opacity: 0.55;
+    }
+
+    .feedback-box {
+      margin-top: 18px;
+      padding: 15px 17px;
+      border-radius: 14px;
+      border: 1.5px solid;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .feedback-box.correct {
+      background: var(--primary-soft);
+      border-color: var(--primary-border);
+      color: #1F4E41;
+    }
+
+    .feedback-box.wrong {
+      background: var(--accent-soft);
+      border-color: var(--accent-border);
+      color: #7D3B1A;
+    }
+
+    .feedback-title {
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-size: 14.5px;
+    }
+
+    .quiz-footer {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* 完成畫面 */
+    .result-score-box {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin: 18px 0;
+      text-align: center;
+    }
+
+    .result-score-num {
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .result-sync-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    /* =====================================================================
+       統計儀表板 (#stats)
+       ===================================================================== */
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .section-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-light);
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .kpi-value.primary { color: var(--primary); }
+    .kpi-value.accent { color: var(--accent); }
+
+    .card-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 16.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-sub {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    /* 表格與進度條 */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-light);
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #F1EFEA;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: var(--radius-pill);
+      background: var(--primary);
+      transition: width 0.4s ease;
+    }
+
+    .bar-fill.accent {
+      background: var(--accent);
+    }
+
+    .bar-fill.muted {
+      background: #B8C0CC;
+    }
+
+    /* 錯題分析卡片 */
+    .error-item {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .error-item:first-child {
+      padding-top: 0;
+    }
+
+    .error-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .error-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .error-q-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .tag-accent {
+      background: var(--accent-soft);
+      color: #B45323;
+      border: 1px solid var(--accent-border);
+    }
+
+    .tag-primary {
+      background: var(--primary-soft);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+    }
+
+    .tag-neutral {
+      background: var(--bg-subtle);
+      color: var(--text-muted);
+    }
+
+    .wrong-breakdown {
+      margin-top: 10px;
+      background: #FAF9F6;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .wrong-opt-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .wrong-opt-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+    }
+
+    /* =====================================================================
+       後台管理 (#admin)
+       ===================================================================== */
+    .lock-card {
+      max-width: 420px;
+      margin: 24px auto;
+      text-align: center;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .note-box {
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-border);
+      color: #7D3B1A;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin: 14px 0;
+    }
+
+    .code-details {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #1B2420;
+      color: #E6EFEA;
+    }
+
+    .code-details summary {
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #23302B;
+      list-style: none;
+    }
+
+    .code-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .code-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #17201C;
+      border-bottom: 1px solid #2D3D36;
+      font-size: 12px;
+      color: #9EB5AB;
+    }
+
+    .code-pre {
+      padding: 14px 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      overflow-x: auto;
+      max-height: 360px;
+      white-space: pre;
+      color: #D4F0E3;
+    }
+
+    .admin-q-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #FCFBF9;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .admin-q-item + .admin-q-item {
+      margin-top: 10px;
+    }
+
+    .admin-q-opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px 14px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* =====================================================================
+       彈窗與 Toast 通知
+       ===================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(31, 41, 55, 0.48);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 22px 24px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-box.sm {
+      max-width: 400px;
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .toast-wrap {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      max-width: calc(100% - 40px);
+    }
+
+    .toast {
+      padding: 11px 16px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+      pointer-events: auto;
+      animation: fadeIn 0.22s ease-out;
+    }
+
+    .toast.success { background: var(--primary); }
+    .toast.error { background: var(--danger); }
+    .toast.warning { background: var(--accent); }
+    .toast.info { background: #334155; }
+
+    .footer {
+      text-align: center;
+      padding: 20px 16px;
+      font-size: 12px;
+      color: var(--text-light);
+      border-top: 1px solid var(--border);
+    }
+
+    /* =====================================================================
+       RWD 手機版適配
+       ===================================================================== */
+    @media (max-width: 720px) {
+      .topbar-inner {
+        padding: 10px 14px;
+      }
+      .nav-tabs {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .nav-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 8px;
+        font-size: 13px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .form-grid-2, .admin-q-opts {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        padding: 18px;
+      }
+      .hero-title {
+        font-size: 22px;
+      }
+      .hide-sm {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 頂部導覽列 ==================== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <!-- 成長嫩芽與小徑圖示 -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20v-8" />
+            <path d="M12 12c0-4.5 3.5-7 7-7 0 4-2.5 7-7 7z" />
+            <path d="M12 14c0-3.5-2.8-5.5-6-5.5 0 3.2 2.2 5.5 6 5.5z" />
+            <path d="M5 20h14" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div id="nav-bank-title" class="brand-title">每日五題・成長小徑</div>
+          <div class="status-pill">
+            <span id="nav-status-dot" class="status-dot"></span>
+            <span id="nav-status-text">目前模式：本機展示模式</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" aria-label="主導覽">
+        <button class="nav-btn active" id="tab-btn-home" onclick="navigateTo('home')">首頁練習</button>
+        <button class="nav-btn" id="tab-btn-stats" onclick="navigateTo('stats')">統計數據</button>
+        <button class="nav-btn" id="tab-btn-admin" onclick="navigateTo('admin')">題庫與設定</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==================== 主內容區 ==================== -->
+  <main class="main-container">
+
+    <!-- 同步中提示條 -->
+    <div id="sync-banner" class="sync-banner hidden">
+      <span class="spinner"></span>
+      <span id="sync-banner-text">正在與 Google 試算表同步資料...</span>
+    </div>
+
+    <!-- ===================================================
+         頁面 1：首頁與每日五題練習 (#home / #quiz)
+         =================================================== -->
+    <section id="view-home" class="fade-in">
+      <!-- 1A. 首頁開始卡片 -->
+      <div id="home-start-panel" class="home-wrap">
+        <div class="card">
+          <div class="hero-badge">
+            <span>每日 5 題精選</span>
+            <span>•</span>
+            <span id="home-q-count">題庫共 8 題</span>
+          </div>
+          <h1 id="home-bank-title" class="hero-title">每日五題・成長小徑</h1>
+          <p id="home-bank-subtitle" class="hero-subtitle">每天花兩分鐘完成五題隨機練習，一步步累積穩定而踏實的成長。</p>
+
+          <!-- 首頁靜態成長小徑預覽 -->
+          <div class="trail-box">
+            <div class="trail-header">
+              <span>今日五步成長軌跡</span>
+              <span>準備出發</span>
+            </div>
+            <div id="home-trail-preview"></div>
+          </div>
+
+          <form onsubmit="handleStartQuiz(event)">
+            <label for="username-input" class="field-label">請輸入您的用戶名稱</label>
+            <input
+              id="username-input"
+              class="input"
+              type="text"
+              maxlength="30"
+              required
+              placeholder="例如：阿明、小晴、林同學..."
+              style="margin-bottom: 14px;"
+            />
+            <button type="submit" class="btn btn-primary btn-full">
+              <span>開始今日五題</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14" /><path d="M13 5l7 7-7 7" />
+              </svg>
+            </button>
+          </form>
+
+          <!-- 隱私極簡紀錄徽章 -->
+          <div class="privacy-badge">
+            <div class="privacy-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </div>
+            <div>
+              <strong>隱私保護宣告：</strong>本系統僅紀錄「用戶名稱來訪次數」與「每題匿名錯誤統計」，不保留個人答題明細或分數。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1B. 進行中答題卡片 -->
+      <div id="quiz-play-panel" class="quiz-wrap hidden">
+        <div class="card">
+          <!-- 五步成長小徑即時進度 -->
+          <div class="trail-box">
+            <div class="trail-header">
+              <span>練習者：<strong id="quiz-user-label"></strong></span>
+              <span id="quiz-step-label">第 1 / 5 步</span>
+            </div>
+            <div id="quiz-trail-live"></div>
+          </div>
+
+          <h2 id="quiz-question-text" class="question-text">題目載入中...</h2>
+
+          <div id="quiz-options-list" class="options-list"></div>
+
+          <!-- 即時回饋與解析 -->
+          <div id="quiz-feedback" class="feedback-box hidden">
+            <div id="quiz-feedback-title" class="feedback-title"></div>
+            <div id="quiz-feedback-exp"></div>
+          </div>
+
+          <div class="quiz-footer">
+            <button type="button" class="btn btn-outline btn-sm" onclick="confirmAbortQuiz()">返回首頁</button>
+            <button type="button" id="quiz-next-btn" class="btn btn-primary hidden" onclick="handleNextQuestion()">
+              <span id="quiz-next-btn-text">下一題</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1C. 完成五題結算卡片 -->
+      <div id="quiz-result-panel" class="home-wrap hidden">
+        <div class="card" style="text-align: center;">
+          <div class="trail-box" style="text-align: left;">
+            <div class="trail-header">
+              <span>今日成長小徑已完成</span>
+              <span id="result-trail-tag">5 / 5 里程碑</span>
+            </div>
+            <div id="result-trail-final"></div>
+          </div>
+
+          <h2 style="font-size: 23px; font-weight: 800; margin-bottom: 4px;">今日五題練習完成！</h2>
+          <p style="font-size: 14px; color: var(--text-muted);">
+            感謝你的堅持，<strong id="result-username" style="color: var(--text-main);"></strong>
+          </p>
+
+          <div class="result-score-box">
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-light); margin-bottom: 4px;">本次答對題數（僅供當下檢視，不留存個人分數）</div>
+            <div class="result-score-num">
+              <span id="result-score">0</span>
+              <span style="font-size: 20px; color: var(--text-light); font-weight: 600;">/ <span id="result-total">5</span></span>
+            </div>
+            <p id="result-comment" style="font-size: 13.5px; color: var(--text-muted); margin-top: 8px;"></p>
+          </div>
+
+          <div id="result-sync-note" class="result-sync-note">
+            <span>✓ 已更新您的來訪次數與匿名錯題統計</span>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+            <button class="btn btn-primary" style="flex: 1; min-width: 170px;" onclick="resetToHome()">再練一輪（重新抽五題）</button>
+            <button class="btn btn-outline" style="flex: 1; min-width: 150px;" onclick="navigateTo('stats')">查看統計數據</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         頁面 2：統計數據儀表板 (#stats)
+         =================================================== -->
+    <section id="view-stats" class="hidden fade-in">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">統計數據儀表板</h2>
+          <p class="section-desc">僅彙整用戶來訪頻率與各題匿名錯誤分布，保護所有練習者隱私。</p>
+        </div>
+        <button class="btn btn-outline btn-sm" id="stats-sync-btn" onclick="handleManualSync()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10" />
+            <polyline points="1 20 1 14 7 14" />
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+          </svg>
+          <span id="stats-sync-btn-text">重新整理數據</span>
+        </button>
+      </div>
+
+      <!-- KPI 摘要 -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">總來訪練習人次</div>
+          <div id="kpi-total-visits" class="kpi-value primary">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">不重複用戶數</div>
+          <div id="kpi-unique-users" class="kpi-value">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">累計錯題總次數</div>
+          <div id="kpi-total-errors" class="kpi-value accent">0</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">目前題庫題數</div>
+          <div id="kpi-bank-count" class="kpi-value">0</div>
+        </div>
+      </div>
+
+      <!-- 來訪用戶頻率 -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">來訪用戶頻率</div>
+            <div class="card-sub">依累計練習次數由高到低排序</div>
+          </div>
+          <span id="stats-mode-tag" class="tag tag-neutral">本機展示模式</span>
+        </div>
+        <div id="stats-visits-body"></div>
+      </div>
+
+      <!-- 每題常出現的錯誤 -->
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">每題常出現的錯誤</div>
+            <div class="card-sub">依累計錯誤次數排序，標示最常被誤選的誘答選項</div>
+          </div>
+        </div>
+        <div id="stats-errors-body"></div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         頁面 3：題庫與單一 GAS 設定 (#admin)
+         =================================================== -->
+    <section id="view-admin" class="hidden fade-in">
+
+      <!-- 3A. 管理密碼解鎖 -->
+      <div id="admin-lock-panel" class="card lock-card">
+        <div style="width: 46px; height: 46px; border-radius: 14px; background: var(--primary-soft); color: var(--primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+        <h2 style="font-size: 19px; font-weight: 800; margin-bottom: 6px;">進入題庫與系統設定</h2>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px;">請輸入管理密碼以編輯題庫內容與 Google 試算表連線。</p>
+        <form onsubmit="handleAdminUnlock(event)">
+          <input
+            id="admin-pin-input"
+            class="input"
+            type="password"
+            required
+            placeholder="輸入管理密碼（預設：1234）"
+            style="text-align: center; letter-spacing: 0.2em; margin-bottom: 12px;"
+          />
+          <button type="submit" class="btn btn-primary btn-full">解鎖管理介面</button>
+        </form>
+      </div>
+
+      <!-- 3B. 管理主面板 -->
+      <div id="admin-main-panel" class="hidden">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">題庫與系統設定</h2>
+            <p class="section-desc">僅需串接單一 Google Apps Script 網址，即可免費同步試算表紀錄與題庫。</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="lockAdmin()">鎖定設定頁</button>
+        </div>
+
+        <!-- 區塊 1：Google Apps Script 單一網址串接 -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">1. Google Apps Script 單一網址串接</div>
+              <div class="card-sub">將紀錄自動寫入你的 Google 試算表（無需任何第三方 API 金鑰）</div>
+            </div>
+          </div>
+
+          <label for="gas-url-input" class="field-label">Google Apps Script 網頁應用程式網址（Web App URL）</label>
+          <input
+            id="gas-url-input"
+            class="input"
+            type="url"
+            placeholder="https://script.google.com/macros/s/xxxxxxxxxxxxxxxx/exec"
+            style="font-family: var(--font-mono); font-size: 13px; margin-bottom: 12px;"
+          />
+
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="saveGasUrlOnly()">儲存網址</button>
+            <button class="btn btn-accent btn-sm" onclick="testAndSyncGas()">測試連線並同步</button>
+            <button class="btn btn-outline btn-sm" onclick="switchToLocalDemo()">切換回本機模式</button>
+          </div>
+
+          <div class="note-box">
+            <strong>GitHub Pages 全員共用提示：</strong><br />
+            在這裡儲存的網址只會記在您目前的瀏覽器。若希望所有開啟您 GitHub Pages 網頁的訪客都自動連線到同一個 Google 試算表，請直接打開本 HTML 檔案，將網址貼入 <code>&lt;script&gt;</code> 最上方的 <code>DEFAULT_GAS_URL</code> 常數並推送至 GitHub 即可。
+          </div>
+
+          <!-- 內建可展開複製的 Code.gs -->
+          <details class="code-details">
+            <summary>
+              <span>展開／複製 Google Apps Script 後端程式碼（Code.gs）</span>
+              <span style="font-size: 12px; color: #9EB5AB;">點擊展開 ▼</span>
+            </summary>
+            <div class="code-toolbar">
+              <span>步驟：開新 Google 試算表 → 擴充功能 → Apps Script → 貼上以下程式碼 → 部署為網頁應用程式（存取權選「所有人」）</span>
+              <button type="button" class="btn btn-primary btn-sm" onclick="copyGasCode()" style="flex-shrink: 0;">一鍵複製 Code.gs</button>
+            </div>
+            <pre id="gas-code-template" class="code-pre">/**
+ * 每日五題練習系統 - Google Apps Script 後端 (Code.gs)
+ * 自動建立三個工作表：
+ * 1. Visits (用戶來訪頻率：僅紀錄名稱、次數、最後日期)
+ * 2. Errors (每題錯誤統計：僅紀錄匿名錯誤總數與誤選選項次數)
+ * 3. Bank   (題庫名稱、副標題與題目 JSON)
+ */
+
+function getOrInitSheet_(ss, name, headers) {
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    if (headers && headers.length) {
+      sheet.appendRow(headers);
+      sheet.setFrozenRows(1);
+    }
+  }
+  return sheet;
+}
+
+function initAllSheets_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const visitsSheet = getOrInitSheet_(ss, 'Visits', ['username', 'count', 'lastDate']);
+  const errorsSheet = getOrInitSheet_(ss, 'Errors', ['questionId', 'questionText', 'totalErrors', 'wrongOptionsJson']);
+  const bankSheet   = getOrInitSheet_(ss, 'Bank',   ['key', 'value']);
+  return { visitsSheet, errorsSheet, bankSheet };
+}
+
+function jsonOut_(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * GET: 讀取所有統計數據與題庫設定
+ */
+function doGet(e) {
+  try {
+    const { visitsSheet, errorsSheet, bankSheet } = initAllSheets_();
+
+    // 1. 讀取 Visits
+    const vRows = visitsSheet.getDataRange().getValues();
+    const visits = [];
+    for (let i = 1; i &lt; vRows.length; i++) {
+      const name = String(vRows[i][0] || '').trim();
+      if (!name) continue;
+      visits.push({
+        username: name,
+        count: Number(vRows[i][1] || 0),
+        lastDate: String(vRows[i][2] || '')
+      });
+    }
+
+    // 2. 讀取 Errors
+    const eRows = errorsSheet.getDataRange().getValues();
+    const errors = [];
+    for (let i = 1; i &lt; eRows.length; i++) {
+      const qId = String(eRows[i][0] || '').trim();
+      if (!qId) continue;
+      let wrongOptions = {};
+      try {
+        wrongOptions = JSON.parse(eRows[i][3] || '{}');
+      } catch (err) {
+        wrongOptions = {};
+      }
+      errors.push({
+        questionId: qId,
+        questionText: String(eRows[i][1] || ''),
+        totalErrors: Number(eRows[i][2] || 0),
+        wrongOptions: wrongOptions
+      });
+    }
+
+    // 3. 讀取 Bank
+    const bRows = bankSheet.getDataRange().getValues();
+    let bank = null;
+    for (let i = 1; i &lt; bRows.length; i++) {
+      if (String(bRows[i][0]) === 'bank_json' &amp;&amp; bRows[i][1]) {
+        try {
+          bank = JSON.parse(bRows[i][1]);
+        } catch (err) {
+          bank = null;
+        }
+        break;
+      }
+    }
+
+    return jsonOut_({ ok: true, visits: visits, errors: errors, bank: bank });
+  } catch (err) {
+    return jsonOut_({ ok: false, error: String(err) });
+  }
+}
+
+/**
+ * POST: 寫入練習統計 (action: 'submit') 或儲存題庫 (action: 'saveBank')
+ * 使用 LockService 避免多人同時送出造成寫入衝突
+ */
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    const payload = JSON.parse(e.postData.contents || '{}');
+    const { visitsSheet, errorsSheet, bankSheet } = initAllSheets_();
+
+    if (payload.action === 'submit') {
+      const username = String(payload.username || '').trim();
+      const dateStr  = String(payload.date || Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd'));
+      const missed   = Array.isArray(payload.missed) ? payload.missed : [];
+
+      // 1. 更新 Visits（僅累加次數與更新最近日期）
+      if (username) {
+        const vValues = visitsSheet.getDataRange().getValues();
+        let foundRow = -1;
+        for (let i = 1; i &lt; vValues.length; i++) {
+          if (String(vValues[i][0]).trim() === username) {
+            foundRow = i + 1;
+            break;
+          }
+        }
+        if (foundRow &gt; 0) {
+          const prevCount = Number(vValues[foundRow - 1][1] || 0);
+          visitsSheet.getRange(foundRow, 2, 1, 2).setValues([[prevCount + 1, dateStr]]);
+        } else {
+          visitsSheet.appendRow([username, 1, dateStr]);
+        }
+      }
+
+      // 2. 更新 Errors（僅累計每題錯誤次數與各錯誤選項次數）
+      if (missed.length &gt; 0) {
+        const eValues = errorsSheet.getDataRange().getValues();
+        const rowMap = {};
+        for (let i = 1; i &lt; eValues.length; i++) {
+          const qId = String(eValues[i][0] || '').trim();
+          if (qId) rowMap[qId] = i + 1;
+        }
+
+        missed.forEach(function(item) {
+          const qId = String(item.questionId || '').trim();
+          const qText = String(item.questionText || '');
+          const chosenKey = String(item.chosenKey || '').toUpperCase();
+          if (!qId) return;
+
+          if (rowMap[qId]) {
+            const r = rowMap[qId];
+            const prevTotal = Number(errorsSheet.getRange(r, 3).getValue() || 0);
+            let wrongMap = {};
+            try {
+              wrongMap = JSON.parse(errorsSheet.getRange(r, 4).getValue() || '{}');
+            } catch (err) {
+              wrongMap = {};
+            }
+            if (chosenKey) {
+              wrongMap[chosenKey] = Number(wrongMap[chosenKey] || 0) + 1;
+            }
+            errorsSheet.getRange(r, 2, 1, 3).setValues([[qText, prevTotal + 1, JSON.stringify(wrongMap)]]);
+          } else {
+            const wrongMap = {};
+            if (chosenKey) wrongMap[chosenKey] = 1;
+            errorsSheet.appendRow([qId, qText, 1, JSON.stringify(wrongMap)]);
+            rowMap[qId] = errorsSheet.getLastRow();
+          }
+        });
+      }
+
+      return jsonOut_({ ok: true, action: 'submit' });
+    }
+
+    if (payload.action === 'saveBank') {
+      const bankObj = {
+        title: String(payload.title || '每日五題・成長小徑'),
+        subtitle: String(payload.subtitle || ''),
+        questions: Array.isArray(payload.questions) ? payload.questions : []
+      };
+      const bValues = bankSheet.getDataRange().getValues();
+      let foundRow = -1;
+      for (let i = 1; i &lt; bValues.length; i++) {
+        if (String(bValues[i][0]) === 'bank_json') {
+          foundRow = i + 1;
+          break;
+        }
+      }
+      const serialized = JSON.stringify(bankObj);
+      if (foundRow &gt; 0) {
+        bankSheet.getRange(foundRow, 2).setValue(serialized);
+      } else {
+        bankSheet.appendRow(['bank_json', serialized]);
+      }
+      return jsonOut_({ ok: true, action: 'saveBank' });
+    }
+
+    return jsonOut_({ ok: false, error: 'Unknown action' });
+  } catch (err) {
+    return jsonOut_({ ok: false, error: String(err) });
+  } finally {
+    lock.releaseLock();
+  }
+}</pre>
+          </details>
+        </div>
+
+        <!-- 區塊 2：題庫名稱與副標題修改 -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">2. 題庫名稱修改</div>
+              <div class="card-sub">即時更新首頁與導覽列標題，若已連線試算表將一併同步</div>
+            </div>
+          </div>
+
+          <form onsubmit="handleSaveBankMeta(event)">
+            <div class="form-grid-2" style="margin-bottom: 14px;">
+              <div>
+                <label for="admin-title-input" class="field-label">題庫名稱</label>
+                <input id="admin-title-input" class="input" type="text" maxlength="50" required />
+              </div>
+              <div>
+                <label for="admin-subtitle-input" class="field-label">副標題說明</label>
+                <input id="admin-subtitle-input" class="input" type="text" maxlength="100" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">儲存名稱設定</button>
+          </form>
+        </div>
+
+        <!-- 區塊 3：題庫內容管理 -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">3. 題庫內容管理（共 <span id="admin-q-count" style="color: var(--primary);">0</span> 題）</div>
+              <div class="card-sub">每次開始練習將從以下題庫中隨機抽取 5 題</div>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <button class="btn btn-primary btn-sm" onclick="openQuestionModal()">＋ 新增題目</button>
+              <button class="btn btn-outline btn-sm" onclick="exportBankJSON()">匯出 JSON</button>
+              <button class="btn btn-outline btn-sm" onclick="openImportModal()">匯入 JSON</button>
+            </div>
+          </div>
+
+          <div id="admin-questions-list"></div>
+        </div>
+
+        <!-- 區塊 4：本機展示統計重置 -->
+        <div class="card" style="background: var(--danger-soft); border-color: var(--danger-border);">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--danger);">重置本機展示統計數據</div>
+              <div style="font-size: 12.5px; color: #8A3A29;">清除目前瀏覽器 localStorage 中的來訪頻率與錯題展示數據（不會影響題庫內容或 Google 試算表資料）。</div>
+            </div>
+            <button class="btn btn-danger btn-sm" onclick="confirmResetLocalStats()">清除本機統計</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    每日五題・成長小徑練習系統 • 單檔靜態架構（適用 GitHub Pages + 單一 Google Apps Script 試算表紀錄）
+  </footer>
+
+  <!-- ==================== 彈窗：新增／編輯題目 ==================== -->
+  <div id="question-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div id="q-modal-title" class="modal-title">新增題目</div>
+        <button class="btn btn-secondary btn-sm" onclick="closeQuestionModal()">關閉</button>
+      </div>
+      <form id="question-form" onsubmit="handleSaveQuestion(event)">
+        <input type="hidden" id="q-edit-id" />
+        <div style="margin-bottom: 12px;">
+          <label class="field-label" for="q-input-text">題目內容 *</label>
+          <textarea id="q-input-text" class="textarea" required placeholder="請輸入題目..."></textarea>
+        </div>
+        <div class="form-grid-2" style="margin-bottom: 12px;">
+          <div>
+            <label class="field-label" for="q-input-a">選項 A *</label>
+            <input id="q-input-a" class="input" type="text" required />
+          </div>
+          <div>
+            <label class="field-label" for="q-input-b">選項 B *</label>
+            <input id="q-input-b" class="input" type="text" required />
+          </div>
+          <div>
+            <label class="field-label" for="q-input-c">選項 C *</label>
+            <input id="q-input-c" class="input" type="text" required />
+          </div>
+          <div>
+            <label class="field-label" for="q-input-d">選項 D *</label>
+            <input id="q-input-d" class="input" type="text" required />
+          </div>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <label class="field-label" for="q-input-answer">正確答案 *</label>
+          <select id="q-input-answer" class="select">
+            <option value="A">選項 A</option>
+            <option value="B">選項 B</option>
+            <option value="C">選項 C</option>
+            <option value="D">選項 D</option>
+          </select>
+        </div>
+        <div style="margin-bottom: 18px;">
+          <label class="field-label" for="q-input-exp">解析說明（作答後顯示）</label>
+          <textarea id="q-input-exp" class="textarea" placeholder="簡短說明為何此選項正確..."></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeQuestionModal()">取消</button>
+          <button type="submit" class="btn btn-primary btn-sm">儲存題目</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== 彈窗：匯入 JSON ==================== -->
+  <div id="import-modal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title">匯入題庫 JSON</div>
+        <button class="btn btn-secondary btn-sm" onclick="closeImportModal()">關閉</button>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+        可選擇先前匯出的 JSON 檔案，或直接貼上題目陣列（匯入後將更新目前題庫並同步至試算表）。
+      </p>
+      <input type="file" id="import-file-input" accept=".json,application/json" onchange="handleImportFile(event)" style="margin-bottom: 12px; font-size: 13px;" />
+      <textarea id="import-json-text" class="textarea" rows="7" style="font-family: var(--font-mono); font-size: 12px; margin-bottom: 14px;" placeholder='[{"id":"q1","text":"題目","options":{"A":"...","B":"...","C":"...","D":"..."},"answer":"A","explanation":"..."}]'></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-secondary btn-sm" onclick="closeImportModal()">取消</button>
+        <button class="btn btn-primary btn-sm" onclick="handleImportSubmit()">確認匯入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 自訂確認彈窗（取代 confirm） ==================== -->
+  <div id="confirm-modal" class="modal-backdrop hidden">
+    <div class="modal-box sm">
+      <div id="confirm-title" class="modal-title" style="margin-bottom: 8px;">確認操作</div>
+      <p id="confirm-msg" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;"></p>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="btn btn-secondary btn-sm" onclick="closeConfirmModal()">取消</button>
+        <button id="confirm-ok-btn" class="btn btn-danger btn-sm">確認執行</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Toast 通知容器（取代 alert） ==================== -->
+  <div id="toast-wrap" class="toast-wrap"></div>
+
+  <!-- ==================== 核心腳本 ==================== -->
+  <script>
+    /**
+     * =========================================================================
+     * [部署設定區]
+     * 若要放上 GitHub Pages 並讓所有訪客自動寫入同一份 Google 試算表：
+     * 請將部署好的 Google Apps Script 網頁應用程式網址貼在下方 DEFAULT_GAS_URL 中。
+     * =========================================================================
+     */
+    const DEFAULT_GAS_URL = ""; // 例如："https://script.google.com/macros/s/AKfycb.../exec"
+    const ADMIN_PIN = "1234";   // 後台管理密碼（可自行修改）
+
+    // localStorage 儲存鍵名
+    const STORAGE_KEYS = {
+      GAS_URL: "dfg_gas_url_v1",
+      BANK: "dfg_bank_v1",
+      VISITS: "dfg_visits_v1",
+      ERRORS: "dfg_errors_v1",
+      DEMO_SEEDED: "dfg_demo_seeded_v1"
+    };
+
+    // 預設 8 題範例題庫（成長思維 × 實用常識）
+    const DEFAULT_BANK = {
+      title: "每日五題・成長小徑",
+      subtitle: "每天花兩分鐘完成五題隨機練習，一步步累積穩定而踏實的成長。",
+      questions: [
+        {
+          id: "q_growth_1",
+          text: "根據心理學家卡蘿・杜維克（Carol Dweck）的研究，「成長型思維（Growth Mindset）」的核心信念是什麼？",
+          options: {
+            A: "人的天賦與智力在出生時就已固定不變",
+            B: "能力可以透過持續努力、策略調整與回饋而不斷成長",
+            C: "只要避免犯錯，就能證明自己很聰明",
+            D: "遇到困難代表自己不適合這個領域，應立即放棄"
+          },
+          answer: "B",
+          explanation: "成長型思維相信大腦像肌肉一樣，透過刻意練習、檢討錯誤與調整方法能持續進步。"
+        },
+        {
+          id: "q_growth_2",
+          text: "在學習新知識時，下列哪一種複習方式最能有效強化長期記憶（符合「提取練習」效應）？",
+          options: {
+            A: "反覆用螢光筆畫滿整頁重點並默唸",
+            B: "闔上書本，嘗試用自己的話回答問題或進行小測驗",
+            C: "在考前一天熬夜一口氣讀完所有章節",
+            D: "只挑自己已經非常熟練的單元一直重看"
+          },
+          answer: "B",
+          explanation: "主動提取（Active Recall，例如每日五題小測驗）比被動重讀更能鞏固神經連結。"
+        },
+        {
+          id: "q_growth_3",
+          text: "建立日常好習慣時，《原子習慣》提到的「兩分鐘法則」主要想解決什麼問題？",
+          options: {
+            A: "要求每天只能花兩分鐘學習，不可超過",
+            B: "降低開始行動的阻力，讓新習慣容易啟動並維持連續性",
+            C: "在兩分鐘內快速背完一整本書",
+            D: "用倒數計時製造高度焦慮以逼迫自己"
+          },
+          answer: "B",
+          explanation: "把目標縮小到兩分鐘內可啟動的小行動（例如每天練五題），最容易跨過拖延門檻。"
+        },
+        {
+          id: "q_growth_4",
+          text: "在設定目標時，SMART 原則中的「M（Measurable）」代表什麼意義？",
+          options: {
+            A: "目標必須完全憑感覺評估",
+            B: "目標要具備可衡量的具體指標，能清楚追蹤進度",
+            C: "目標只能由主管或老師代為決定",
+            D: "目標應該保密，不要讓任何人知道"
+          },
+          answer: "B",
+          explanation: "Measurable（可衡量）讓我們能透過具體數據（如完成題數、錯誤率變化）客觀看見進步。"
+        },
+        {
+          id: "q_growth_5",
+          text: "當我們在閱讀資訊或做決策時，容易只尋找並相信「支持自己原本想法」的證據，這稱為什麼認知偏誤？",
+          options: {
+            A: "確認偏誤（Confirmation Bias）",
+            B: "月暈效應（Halo Effect）",
+            C: "聚光燈效應（Spotlight Effect）",
+            D: "倖存者偏差（Survivorship Bias）"
+          },
+          answer: "A",
+          explanation: "確認偏誤會讓人忽略反面證據；刻意檢視錯題與不同觀點，是克服確認偏誤的好方法。"
+        },
+        {
+          id: "q_growth_6",
+          text: "在時間管理「艾森豪矩陣（四象限法則）」中，哪一類任務最容易被忽略，卻對長期個人成長最關鍵？",
+          options: {
+            A: "緊急且重要的突發危機",
+            B: "緊急但不重要的瑣碎干擾",
+            C: "重要但不緊急的長期累積（如每日學習、運動與規劃）",
+            D: "既不緊急也不重要的消遣"
+          },
+          answer: "C",
+          explanation: "「重要但不緊急」的事情沒有立即死線，卻是拉開長期實力差距的關鍵投資。"
+        },
+        {
+          id: "q_growth_7",
+          text: "使用「番茄鐘工作法（Pomodoro Technique）」時，最經典的專注與短暫休息節奏為何？",
+          options: {
+            A: "連續專注 90 分鐘、休息 1 分鐘",
+            B: "專注 25 分鐘、休息 5 分鐘",
+            C: "專注 10 分鐘、休息 20 分鐘",
+            D: "整天不休息直到體力耗盡"
+          },
+          answer: "B",
+          explanation: "25 分鐘專注搭配 5 分鐘休息能維持大腦清晰度，避免長時間疲勞導致效率下滑。"
+        },
+        {
+          id: "q_growth_8",
+          text: "在網頁或數位工具的設計中，若只統計「每題被選錯的總次數」而不綁定個人作答明細，最符合哪一項原則？",
+          options: {
+            A: "資料最小化與隱私保護（Data Minimization）",
+            B: "完全公開個資原則",
+            C: "無限制追蹤使用者足跡",
+            D: "將個人分數永久綁定實名認證"
+          },
+          answer: "A",
+          explanation: "資料最小化原則強調只收集達成目的所需的最低限度數據，兼顧教學分析與個人隱私。"
+        }
+      ]
+    };
+
+    // 本機首次開啟的展示用範例統計（僅在無 GAS 網址且 localStorage 全空時載入一次）
+    const DEMO_VISITS = [
+      { username: "小晴", count: 7, lastDate: "2026-11-22" },
+      { username: "阿明", count: 5, lastDate: "2026-11-21" },
+      { username: "林同學", count: 3, lastDate: "2026-11-22" }
+    ];
+
+    const DEMO_ERRORS = [
+      {
+        questionId: "q_growth_5",
+        questionText: "當我們在閱讀資訊或做決策時，容易只尋找並相信「支持自己原本想法」的證據，這稱為什麼認知偏誤？",
+        totalErrors: 5,
+        wrongOptions: { D: 3, B: 2 }
+      },
+      {
+        questionId: "q_growth_6",
+        questionText: "在時間管理「艾森豪矩陣（四象限法則）」中，哪一類任務最容易被忽略，卻對長期個人成長最關鍵？",
+        totalErrors: 3,
+        wrongOptions: { A: 2, B: 1 }
+      }
+    ];
+
+    // =========================================================================
+    // 全域狀態
+    // =========================================================================
+    const state = {
+      gasUrl: "",
+      bank: JSON.parse(JSON.stringify(DEFAULT_BANK)),
+      visits: [],
+      errors: [],
+      adminUnlocked: false,
+      currentView: "home",
+      // 當次五題測驗狀態（純記憶體暫存，完成後即清除個人作答細節）
+      session: {
+        active: false,
+        username: "",
+        questions: [],
+        index: 0,
+        answered: false,
+        score: 0,
+        stepStatus: [], // 'correct' | 'wrong'
+        missed: []      // [{ questionId, questionText, chosenKey }]
+      }
+    };
+
+    // =========================================================================
+    // 基礎工具函式
+    // =========================================================================
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getTodayStr() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function showToast(msg, type = "info") {
+      const wrap = document.getElementById("toast-wrap");
+      const el = document.createElement("div");
+      el.className = `toast ${type}`;
+      el.textContent = msg;
+      wrap.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        el.style.transition = "opacity 0.25s ease";
+        setTimeout(() => el.remove(), 260);
+      }, 3000);
+    }
+
+    let pendingConfirmFn = null;
+    function openConfirmModal(title, msg, onConfirm) {
+      document.getElementById("confirm-title").textContent = title;
+      document.getElementById("confirm-msg").textContent = msg;
+      pendingConfirmFn = onConfirm;
+      document.getElementById("confirm-modal").classList.remove("hidden");
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirm-modal").classList.add("hidden");
+      pendingConfirmFn = null;
+    }
+
+    document.getElementById("confirm-ok-btn").addEventListener("click", () => {
+      if (typeof pendingConfirmFn === "function") {
+        const fn = pendingConfirmFn;
+        closeConfirmModal();
+        fn();
+      } else {
+        closeConfirmModal();
+      }
+    });
+
+    function copyToClipboard(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.top = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        const ok = document.execCommand("copy");
+        showToast(ok ? "已複製到剪貼簿！" : "複製失敗，請手動選取複製", ok ? "success" : "warning");
+      } catch (e) {
+        showToast("複製失敗，請手動選取複製", "warning");
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+
+    function setSyncing(flag, text = "正在與 Google 試算表同步資料...") {
+      const banner = document.getElementById("sync-banner");
+      document.getElementById("sync-banner-text").textContent = text;
+      if (flag) banner.classList.remove("hidden");
+      else banner.classList.add("hidden");
+    }
+
+    // =========================================================================
+    // 客製化五步成長小徑 SVG 繪製器
+    // =========================================================================
+    function buildGrowthTrailSVG(totalSteps, activeIndex, stepStatus = []) {
+      const steps = Math.max(1, Math.min(5, totalSteps || 5));
+      // 5 個里程碑在蜿蜒路徑上的座標
+      const coords = [
+        { x: 56,  y: 56 },
+        { x: 168, y: 34 },
+        { x: 280, y: 58 },
+        { x: 392, y: 32 },
+        { x: 504, y: 48 }
+      ].slice(0, steps);
+
+      // 產生平滑貝茲曲線路徑
+      let pathD = `M ${coords[0].x} ${coords[0].y}`;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const p1 = coords[i];
+        const p2 = coords[i + 1];
+        const mx = (p1.x + p2.x) / 2;
+        pathD += ` C ${mx} ${p1.y}, ${mx} ${p2.y}, ${p2.x} ${p2.y}`;
+      }
+
+      // 計算已點亮進度（根據已完成的題數）
+      const completedCount = stepStatus.length;
+      const progressRatio = steps > 1 ? Math.min(1, completedCount / (steps - 1)) : (completedCount > 0 ? 1 : 0);
+      const approxLen = 520;
+      const dashOffset = Math.max(0, approxLen * (1 - progressRatio));
+
+      const nodesSVG = coords.map((pt, idx) => {
+        const status = stepStatus[idx]; // 'correct' | 'wrong' | undefined
+        const isCurrent = idx === activeIndex && !status;
+        let fill = "#FFFFFF";
+        let stroke = "#C8D5CF";
+        let textFill = "#8A94A6";
+        let label = String(idx + 1);
+
+        if (status === "correct") {
+          fill = "#2F6F5E";
+          stroke = "#2F6F5E";
+          textFill = "#FFFFFF";
+          label = "✓";
+        } else if (status === "wrong") {
+          fill = "#D97742";
+          stroke = "#D97742";
+          textFill = "#FFFFFF";
+          label = "!";
+        } else if (isCurrent) {
+          fill = "#EAF3F0";
+          stroke = "#2F6F5E";
+          textFill = "#2F6F5E";
+        }
+
+        return `
+          <g>
+            ${isCurrent ? `<circle cx="${pt.x}" cy="${pt.y}" r="14" fill="none" stroke="#2F6F5E" stroke-width="2" class="node-pulse" />` : ""}
+            <circle cx="${pt.x}" cy="${pt.y}" r="14" fill="${fill}" stroke="${stroke}" stroke-width="2.5" />
+            <text x="${pt.x}" y="${pt.y + 4.5}" text-anchor="middle" font-size="12" font-weight="700" fill="${textFill}">${label}</text>
+          </g>
+        `;
+      }).join("");
+
+      return `
+        <svg class="trail-svg" viewBox="0 0 560 88" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="五步成長小徑進度">
+          <!-- 背景柔和小丘裝飾 -->
+          <path d="M0 88 Q 140 58 280 76 T 560 66 L 560 88 Z" fill="#E6F0EC" opacity="0.55" />
+          <!-- 基底虛線小徑 -->
+          <path d="${pathD}" stroke="#CFDAD5" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 7" />
+          <!-- 已點亮成長小徑 -->
+          <path d="${pathD}" stroke="#2F6F5E" stroke-width="4.5" stroke-linecap="round"
+                stroke-dasharray="${approxLen}" stroke-dashoffset="${dashOffset}"
+                style="transition: stroke-dashoffset 0.45s ease;" />
+          <!-- 五個里程碑節點 -->
+          ${nodesSVG}
+        </svg>
+      `;
+    }
+
+    // =========================================================================
+    // 資料存取層（本機 localStorage + 單一 Google Apps Script URL）
+    // =========================================================================
+    function resolveGasUrl() {
+      const saved = (localStorage.getItem(STORAGE_KEYS.GAS_URL) || "").trim();
+      if (saved) return saved;
+      return (DEFAULT_GAS_URL || "").trim();
+    }
+
+    function loadLocalState() {
+      // 1. 載入題庫
+      try {
+        const savedBank = JSON.parse(localStorage.getItem(STORAGE_KEYS.BANK) || "null");
+        if (savedBank && Array.isArray(savedBank.questions)) {
+          state.bank = {
+            title: savedBank.title || DEFAULT_BANK.title,
+            subtitle: savedBank.subtitle !== undefined ? savedBank.subtitle : DEFAULT_BANK.subtitle,
+            questions: savedBank.questions
+          };
+        } else {
+          state.bank = JSON.parse(JSON.stringify(DEFAULT_BANK));
+          localStorage.setItem(STORAGE_KEYS.BANK, JSON.stringify(state.bank));
+        }
+      } catch (e) {
+        state.bank = JSON.parse(JSON.stringify(DEFAULT_BANK));
+      }
+
+      // 2. 若未設定 GAS 且從未初始化過，載入範例統計方便預覽
+      const seeded = localStorage.getItem(STORAGE_KEYS.DEMO_SEEDED);
+      if (!state.gasUrl && !seeded && !localStorage.getItem(STORAGE_KEYS.VISITS)) {
+        localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(DEMO_VISITS));
+        localStorage.setItem(STORAGE_KEYS.ERRORS, JSON.stringify(DEMO_ERRORS));
+        localStorage.setItem(STORAGE_KEYS.DEMO_SEEDED, "1");
+      }
+
+      try {
+        state.visits = JSON.parse(localStorage.getItem(STORAGE_KEYS.VISITS) || "[]");
+      } catch (e) {
+        state.visits = [];
+      }
+
+      try {
+        state.errors = JSON.parse(localStorage.getItem(STORAGE_KEYS.ERRORS) || "[]");
+      } catch (e) {
+        state.errors = [];
+      }
+    }
+
+    function saveLocalState() {
+      localStorage.setItem(STORAGE_KEYS.BANK, JSON.stringify(state.bank));
+      localStorage.setItem(STORAGE_KEYS.VISITS, JSON.stringify(state.visits));
+      localStorage.setItem(STORAGE_KEYS.ERRORS, JSON.stringify(state.errors));
+    }
+
+    // 從單一 GAS 網址讀取統計與題庫
+    async function syncFromGas(silent = false) {
+      if (!state.gasUrl) return false;
+      setSyncing(true, "正在從 Google 試算表同步統計與題庫...");
+      try {
+        const res = await fetch(state.gasUrl, { method: "GET" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (!data || !data.ok) throw new Error(data && data.error ? data.error : "回傳格式不正確");
+
+        if (Array.isArray(data.visits)) state.visits = data.visits;
+        if (Array.isArray(data.errors)) state.errors = data.errors;
+        if (data.bank && Array.isArray(data.bank.questions) && data.bank.questions.length > 0) {
+          state.bank = {
+            title: data.bank.title || DEFAULT_BANK.title,
+            subtitle: data.bank.subtitle !== undefined ? data.bank.subtitle : DEFAULT_BANK.subtitle,
+            questions: data.bank.questions
+          };
+        }
+        saveLocalState();
+        renderAll();
+        if (!silent) showToast("已從 Google 試算表同步最新資料！", "success");
+        return true;
+      } catch (err) {
+        console.error("GAS GET Error:", err);
+        if (!silent) showToast("試算表同步失敗，請確認網址正確且部署權限為「所有人」。", "error");
+        return false;
+      } finally {
+        setSyncing(false);
+      }
+    }
+
+    // 透過 text/plain POST 送出資料至 GAS（避免 CORS preflight 問題）
+    async function postToGas(payload) {
+      if (!state.gasUrl) return { ok: false, localOnly: true };
+      const res = await fetch(state.gasUrl, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    }
+
+    // =========================================================================
+    // 路由與整體畫面渲染
+    // =========================================================================
+    function navigateTo(view) {
+      state.currentView = view;
+      window.location.hash = `#${view}`;
+
+      ["home", "stats", "admin"].forEach((v) => {
+        document.getElementById(`view-${v}`).classList.toggle("hidden", v !== view);
+        document.getElementById(`tab-btn-${v}`).classList.toggle("active", v === view);
+      });
+
+      if (view === "stats") renderStats();
+      if (view === "admin") renderAdmin();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function updateStatusUI() {
+      const isConnected = Boolean(state.gasUrl);
+      const dot = document.getElementById("nav-status-dot");
+      const text = document.getElementById("nav-status-text");
+      const statsTag = document.getElementById("stats-mode-tag");
+      const syncBtnText = document.getElementById("stats-sync-btn-text");
+
+      if (isConnected) {
+        dot.classList.add("connected");
+        text.textContent = "已連線 Google 試算表";
+        statsTag.className = "tag tag-primary";
+        statsTag.textContent = "已連線 Google 試算表";
+        syncBtnText.textContent = "從試算表重新同步";
+      } else {
+        dot.classList.remove("connected");
+        text.textContent = "目前模式：本機展示模式";
+        statsTag.className = "tag tag-neutral";
+        statsTag.textContent = "目前模式：本機展示模式";
+        syncBtnText.textContent = "重新整理本機數據";
+      }
+    }
+
+    function renderAll() {
+      updateStatusUI();
+      document.title = state.bank.title;
+      document.getElementById("nav-bank-title").textContent = state.bank.title;
+      document.getElementById("home-bank-title").textContent = state.bank.title;
+      document.getElementById("home-bank-subtitle").textContent = state.bank.subtitle || "";
+      document.getElementById("home-q-count").textContent = `題庫共 ${state.bank.questions.length} 題`;
+      document.getElementById("home-trail-preview").innerHTML = buildGrowthTrailSVG(
+        Math.min(5, Math.max(1, state.bank.questions.length)),
+        0,
+        []
+      );
+
+      renderStats();
+      renderAdmin();
+    }
+
+    // =========================================================================
+    // 每日五題測驗邏輯
+    // =========================================================================
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function handleStartQuiz(e) {
+      e.preventDefault();
+      const username = document.getElementById("username-input").value.trim();
+      if (!username) {
+        showToast("請先輸入您的用戶名稱", "warning");
+        return;
+      }
+      if (!state.bank.questions || state.bank.questions.length === 0) {
+        showToast("目前題庫內沒有題目，請先至「題庫與設定」新增題目。", "warning");
+        return;
+      }
+
+      const drawCount = Math.min(5, state.bank.questions.length);
+      const picked = shuffle(state.bank.questions).slice(0, drawCount);
+
+      state.session = {
+        active: true,
+        username,
+        questions: picked,
+        index: 0,
+        answered: false,
+        score: 0,
+        stepStatus: [],
+        missed: []
+      };
+
+      document.getElementById("home-start-panel").classList.add("hidden");
+      document.getElementById("quiz-result-panel").classList.add("hidden");
+      document.getElementById("quiz-play-panel").classList.remove("hidden");
+
+      renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+      const s = state.session;
+      const q = s.questions[s.index];
+      const total = s.questions.length;
+
+      document.getElementById("quiz-user-label").textContent = s.username;
+      document.getElementById("quiz-step-label").textContent = `第 ${s.index + 1} / ${total} 步`;
+      document.getElementById("quiz-trail-live").innerHTML = buildGrowthTrailSVG(total, s.index, s.stepStatus);
+      document.getElementById("quiz-question-text").textContent = q.text;
+
+      document.getElementById("quiz-feedback").classList.add("hidden");
+      document.getElementById("quiz-next-btn").classList.add("hidden");
+      s.answered = false;
+
+      const listEl = document.getElementById("quiz-options-list");
+      listEl.innerHTML = "";
+
+      ["A", "B", "C", "D"].forEach((key) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.id = `quiz-opt-${key}`;
+        btn.className = "option-btn";
+        btn.onclick = () => handleSelectOption(key);
+        btn.innerHTML = `
+          <span class="option-key">${key}</span>
+          <span class="option-text">${escapeHTML(q.options[key] || "")}</span>
+        `;
+        listEl.appendChild(btn);
+      });
+    }
+
+    function handleSelectOption(chosenKey) {
+      const s = state.session;
+      if (s.answered) return;
+      s.answered = true;
+
+      const q = s.questions[s.index];
+      const isCorrect = chosenKey === q.answer;
+
+      if (isCorrect) {
+        s.score += 1;
+        s.stepStatus.push("correct");
+      } else {
+        s.stepStatus.push("wrong");
+        s.missed.push({
+          questionId: q.id,
+          questionText: q.text,
+          chosenKey: chosenKey
+        });
+      }
+
+      // 更新小徑節點點亮狀態
+      document.getElementById("quiz-trail-live").innerHTML = buildGrowthTrailSVG(
+        s.questions.length,
+        s.index,
+        s.stepStatus
+      );
+
+      // 標示對錯選項樣式
+      ["A", "B", "C", "D"].forEach((key) => {
+        const btn = document.getElementById(`quiz-opt-${key}`);
+        btn.disabled = true;
+        if (key === q.answer) {
+          btn.classList.add("is-correct");
+        } else if (key === chosenKey && !isCorrect) {
+          btn.classList.add("is-wrong");
+        } else {
+          btn.classList.add("is-dimmed");
+        }
+      });
+
+      // 顯示即時解析回饋
+      const fb = document.getElementById("quiz-feedback");
+      const fbTitle = document.getElementById("quiz-feedback-title");
+      const fbExp = document.getElementById("quiz-feedback-exp");
+      fb.className = `feedback-box ${isCorrect ? "correct" : "wrong"}`;
+      fbTitle.textContent = isCorrect
+        ? "答對了！穩健邁出這一步。"
+        : `答錯了，正確答案是選項 ${q.answer}。`;
+      fbExp.textContent = q.explanation ? `解析：${q.explanation}` : "（本題暫無補充解析）";
+
+      // 顯示下一題或完成按鈕
+      const nextBtn = document.getElementById("quiz-next-btn");
+      const isLast = s.index === s.questions.length - 1;
+      document.getElementById("quiz-next-btn-text").textContent = isLast ? "完成今日五題" : "下一題";
+      nextBtn.classList.remove("hidden");
+    }
+
+    async function handleNextQuestion() {
+      const s = state.session;
+      if (s.index < s.questions.length - 1) {
+        s.index += 1;
+        renderCurrentQuestion();
+      } else {
+        await finishQuiz();
+      }
+    }
+
+    async function finishQuiz() {
+      const s = state.session;
+      const total = s.questions.length;
+      const today = getTodayStr();
+
+      // 1. 顯示完成畫面
+      document.getElementById("quiz-play-panel").classList.add("hidden");
+      document.getElementById("quiz-result-panel").classList.remove("hidden");
+
+      document.getElementById("result-trail-tag").textContent = `${total} / ${total} 里程碑`;
+      document.getElementById("result-trail-final").innerHTML = buildGrowthTrailSVG(total, total, s.stepStatus);
+      document.getElementById("result-username").textContent = s.username;
+      document.getElementById("result-score").textContent = s.score;
+      document.getElementById("result-total").textContent = total;
+
+      const ratio = total > 0 ? s.score / total : 0;
+      let comment = "每一次練習都在為未來累積能量，明天見！";
+      if (ratio === 1) comment = "全數答對！今天的步伐非常穩健，太棒了！";
+      else if (ratio >= 0.8) comment = "表現相當出色，把答錯的那題觀念收進口袋就完美了！";
+      else if (ratio >= 0.6) comment = "不錯的節奏，錯題正是最好的成長養分！";
+      document.getElementById("result-comment").textContent = comment;
+
+      // 2. 更新本機統計狀態（僅紀錄：用戶名稱＋次數＋日期；各題匿名錯誤與誤選選項）
+      const vIdx = state.visits.findIndex((v) => v.username === s.username);
+      if (vIdx >= 0) {
+        state.visits[vIdx].count = Number(state.visits[vIdx].count || 0) + 1;
+        state.visits[vIdx].lastDate = today;
+      } else {
+        state.visits.push({ username: s.username, count: 1, lastDate: today });
+      }
+
+      s.missed.forEach((m) => {
+        const eIdx = state.errors.findIndex((item) => item.questionId === m.questionId);
+        if (eIdx >= 0) {
+          state.errors[eIdx].questionText = m.questionText;
+          state.errors[eIdx].totalErrors = Number(state.errors[eIdx].totalErrors || 0) + 1;
+          if (!state.errors[eIdx].wrongOptions) state.errors[eIdx].wrongOptions = {};
+          state.errors[eIdx].wrongOptions[m.chosenKey] =
+            Number(state.errors[eIdx].wrongOptions[m.chosenKey] || 0) + 1;
+        } else {
+          const wrongOptions = {};
+          wrongOptions[m.chosenKey] = 1;
+          state.errors.push({
+            questionId: m.questionId,
+            questionText: m.questionText,
+            totalErrors: 1,
+            wrongOptions
+          });
+        }
+      });
+
+      saveLocalState();
+      renderStats();
+
+      // 3. 若已設定 GAS URL，透過單一 POST 同步寫入 Google 試算表
+      const syncNoteEl = document.getElementById("result-sync-note");
+      if (state.gasUrl) {
+        syncNoteEl.textContent = "正在同步至 Google 試算表...";
+        try {
+          const res = await postToGas({
+            action: "submit",
+            username: s.username,
+            date: today,
+            missed: s.missed
+          });
+          if (res && res.ok) {
+            syncNoteEl.textContent = "✓ 已自動寫入 Google 試算表（僅更新來訪次數與匿名錯題統計）";
+          } else {
+            throw new Error("GAS 回傳失敗");
+          }
+        } catch (err) {
+          console.error(err);
+          syncNoteEl.textContent = "⚠ 試算表連線異常，已先保留於本機快取";
+          showToast("寫入 Google 試算表失敗，請檢查網路或網址設定", "warning");
+        }
+      } else {
+        syncNoteEl.textContent = "✓ 已更新本機展示統計（未留存個人作答明細或分數）";
+      }
+
+      // 立即清空當次作答明細
+      s.missed = [];
+      s.active = false;
+    }
+
+    function confirmAbortQuiz() {
+      openConfirmModal(
+        "返回首頁？",
+        "返回後本次練習不會計入來訪次數與錯題統計，確定要離開嗎？",
+        () => resetToHome()
+      );
+    }
+
+    function resetToHome() {
+      state.session.active = false;
+      document.getElementById("quiz-play-panel").classList.add("hidden");
+      document.getElementById("quiz-result-panel").classList.add("hidden");
+      document.getElementById("home-start-panel").classList.remove("hidden");
+    }
+
+    // =========================================================================
+    // 統計儀表板渲染 (#stats)
+    // =========================================================================
+    async function handleManualSync() {
+      if (state.gasUrl) {
+        await syncFromGas(false);
+      } else {
+        loadLocalState();
+        renderStats();
+        showToast("已重新載入本機展示數據", "info");
+      }
+    }
+
+    function renderStats() {
+      const totalVisits = state.visits.reduce((sum, v) => sum + Number(v.count || 0), 0);
+      const uniqueUsers = state.visits.length;
+      const totalErrors = state.errors.reduce((sum, e) => sum + Number(e.totalErrors || 0), 0);
+
+      document.getElementById("kpi-total-visits").textContent = totalVisits;
+      document.getElementById("kpi-unique-users").textContent = uniqueUsers;
+      document.getElementById("kpi-total-errors").textContent = totalErrors;
+      document.getElementById("kpi-bank-count").textContent = state.bank.questions.length;
+
+      // 1. 來訪用戶頻率表格＋長條圖
+      const visitsBody = document.getElementById("stats-visits-body");
+      const sortedVisits = [...state.visits].sort((a, b) => Number(b.count || 0) - Number(a.count || 0));
+
+      if (sortedVisits.length === 0) {
+        visitsBody.innerHTML = `<div style="text-align:center; padding:24px 0; color:var(--text-light); font-size:14px;">目前尚無來訪練習紀錄。</div>`;
+      } else {
+        const maxCount = Math.max(...sortedVisits.map((v) => Number(v.count || 1)), 1);
+        visitsBody.innerHTML = `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:46px;">排名</th>
+                  <th>用戶名稱</th>
+                  <th class="hide-sm" style="width:36%;">來訪頻率分布</th>
+                  <th style="text-align:right;">累計次數</th>
+                  <th style="text-align:right;">最近來訪日期</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sortedVisits.map((v, idx) => {
+                  const pct = Math.max(8, Math.round((Number(v.count || 0) / maxCount) * 100));
+                  return `
+                    <tr>
+                      <td style="font-weight:700; color:var(--text-light);">#${idx + 1}</td>
+                      <td style="font-weight:700;">${escapeHTML(v.username)}</td>
+                      <td class="hide-sm">
+                        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;"></div></div>
+                      </td>
+                      <td style="text-align:right; font-weight:700; color:var(--primary);">${Number(v.count || 0)} 次</td>
+                      <td style="text-align:right; color:var(--text-muted); font-size:13px;">${escapeHTML(v.lastDate || "-")}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      // 2. 每題常出現的錯誤分析
+      const errorsBody = document.getElementById("stats-errors-body");
+      const sortedErrors = [...state.errors]
+        .filter((e) => Number(e.totalErrors || 0) > 0)
+        .sort((a, b) => Number(b.totalErrors || 0) - Number(a.totalErrors || 0));
+
+      if (sortedErrors.length === 0) {
+        errorsBody.innerHTML = `<div style="text-align:center; padding:24px 0; color:var(--text-light); font-size:14px;">目前尚無任何錯題紀錄，大家表現都很穩健！</div>`;
+        return;
+      }
+
+      const bankMap = {};
+      state.bank.questions.forEach((q) => { bankMap[q.id] = q; });
+
+      errorsBody.innerHTML = sortedErrors.map((errRec) => {
+        const qObj = bankMap[errRec.questionId];
+        const qText = qObj ? qObj.text : (errRec.questionText || errRec.questionId);
+        const totalErr = Number(errRec.totalErrors || 0);
+        const wrongMap = errRec.wrongOptions || {};
+
+        // 找出最常誤選的選項
+        const entries = Object.entries(wrongMap)
+          .filter(([, cnt]) => Number(cnt) > 0)
+          .sort((a, b) => Number(b[1]) - Number(a[1]));
+
+        const topEntry = entries[0];
+        let topBadgeHTML = "";
+        if (topEntry) {
+          const [topKey, topCnt] = topEntry;
+          const optText = qObj && qObj.options && qObj.options[topKey] ? qObj.options[topKey] : "";
+          const shortOpt = optText.length > 18 ? optText.slice(0, 18) + "…" : optText;
+          topBadgeHTML = `<span class="tag tag-accent">最常誤選：${escapeHTML(topKey)}${shortOpt ? ". " + escapeHTML(shortOpt) : ""} (${topCnt}次)</span>`;
+        }
+
+        const barsHTML = entries.map(([optKey, cnt], idx) => {
+          const pct = totalErr > 0 ? Math.round((Number(cnt) / totalErr) * 100) : 0;
+          const optLabel = qObj && qObj.options && qObj.options[optKey] ? qObj.options[optKey] : `選項 ${optKey}`;
+          return `
+            <div class="wrong-opt-row">
+              <div class="wrong-opt-label">
+                <span style="font-weight:${idx === 0 ? "700" : "500"}; color:${idx === 0 ? "#B45323" : "var(--text-muted)"};">
+                  選項 ${escapeHTML(optKey)}：${escapeHTML(optLabel)}
+                </span>
+                <span style="font-weight:700; color:${idx === 0 ? "var(--accent)" : "var(--text-muted)"}; flex-shrink:0;">
+                  ${cnt} 次 (${pct}%)
+                </span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill ${idx === 0 ? "accent" : "muted"}" style="width:${pct}%;"></div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <div class="error-item">
+            <div class="error-top">
+              <div class="error-q-text">${escapeHTML(qText)}</div>
+              <span class="tag tag-neutral">累計答錯 ${totalErr} 次</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+              ${qObj ? `<span class="tag tag-primary">正解：${escapeHTML(qObj.answer)}. ${escapeHTML(qObj.options[qObj.answer] || "")}</span>` : ""}
+              ${topBadgeHTML}
+            </div>
+            ${barsHTML ? `<div class="wrong-breakdown">${barsHTML}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // 後台管理與單一 GAS 設定 (#admin)
+    // =========================================================================
+    function handleAdminUnlock(e) {
+      e.preventDefault();
+      const pin = document.getElementById("admin-pin-input").value;
+      if (pin === ADMIN_PIN) {
+        state.adminUnlocked = true;
+        document.getElementById("admin-pin-input").value = "";
+        renderAdmin();
+        showToast("已解鎖題庫與系統設定", "success");
+      } else {
+        showToast("密碼錯誤，預設密碼為 1234", "error");
+      }
+    }
+
+    function lockAdmin() {
+      state.adminUnlocked = false;
+      renderAdmin();
+      showToast("已鎖定設定頁", "info");
+    }
+
+    function renderAdmin() {
+      const lockPanel = document.getElementById("admin-lock-panel");
+      const mainPanel = document.getElementById("admin-main-panel");
+
+      if (!state.adminUnlocked) {
+        lockPanel.classList.remove("hidden");
+        mainPanel.classList.add("hidden");
+        return;
+      }
+
+      lockPanel.classList.add("hidden");
+      mainPanel.classList.remove("hidden");
+
+      document.getElementById("gas-url-input").value = state.gasUrl;
+      document.getElementById("admin-title-input").value = state.bank.title;
+      document.getElementById("admin-subtitle-input").value = state.bank.subtitle || "";
+      document.getElementById("admin-q-count").textContent = state.bank.questions.length;
+
+      const listEl = document.getElementById("admin-questions-list");
+      if (state.bank.questions.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:24px; border:1.5px dashed var(--border); border-radius:14px; color:var(--text-light); font-size:13.5px;">尚無題目，請點擊上方「新增題目」或「匯入 JSON」。</div>`;
+        return;
+      }
+
+      listEl.innerHTML = state.bank.questions.map((q, idx) => `
+        <div class="admin-q-item">
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+              <span class="tag tag-neutral">#${idx + 1}</span>
+              <span class="tag tag-primary">正解：${escapeHTML(q.answer)}</span>
+            </div>
+            <div style="font-weight:700; font-size:14.5px;">${escapeHTML(q.text)}</div>
+            <div class="admin-q-opts">
+              <div style="${q.answer === "A" ? "color:var(--primary);font-weight:700;" : ""}">A. ${escapeHTML(q.options.A)}</div>
+              <div style="${q.answer === "B" ? "color:var(--primary);font-weight:700;" : ""}">B. ${escapeHTML(q.options.B)}</div>
+              <div style="${q.answer === "C" ? "color:var(--primary);font-weight:700;" : ""}">C. ${escapeHTML(q.options.C)}</div>
+              <div style="${q.answer === "D" ? "color:var(--primary);font-weight:700;" : ""}">D. ${escapeHTML(q.options.D)}</div>
+            </div>
+            ${q.explanation ? `<div style="font-size:12px; color:var(--text-light); margin-top:6px;">解析：${escapeHTML(q.explanation)}</div>` : ""}
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+            <button class="btn btn-outline btn-sm" onclick="openQuestionModal('${escapeHTML(q.id)}')">編輯</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="confirmDeleteQuestion('${escapeHTML(q.id)}')">刪除</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // 1. GAS 網址管理
+    function saveGasUrlOnly() {
+      const url = document.getElementById("gas-url-input").value.trim();
+      if (!url) {
+        showToast("請輸入 Google Apps Script 網址", "warning");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEYS.GAS_URL, url);
+      state.gasUrl = url;
+      updateStatusUI();
+      showToast("已儲存 GAS 網址！建議接著點擊「測試連線並同步」。", "success");
+    }
+
+    async function testAndSyncGas() {
+      const url = document.getElementById("gas-url-input").value.trim();
+      if (!url) {
+        showToast("請先貼上 Google Apps Script 網址", "warning");
+        return;
+      }
+      localStorage.setItem(STORAGE_KEYS.GAS_URL, url);
+      state.gasUrl = url;
+      updateStatusUI();
+      const ok = await syncFromGas(false);
+      if (ok && state.bank.questions.length > 0) {
+        // 若試算表剛建立尚未存題庫，順手把目前題庫推一份上去初始化
+        try {
+          await postToGas({
+            action: "saveBank",
+            title: state.bank.title,
+            subtitle: state.bank.subtitle,
+            questions: state.bank.questions
+          });
+        } catch (e) {
+          // 忽略初始化寫入錯誤，已於 syncFromGas 提示
+        }
+      }
+    }
+
+    function switchToLocalDemo() {
+      localStorage.removeItem(STORAGE_KEYS.GAS_URL);
+      state.gasUrl = "";
+      loadLocalState();
+      renderAll();
+      showToast("已切換回本機展示模式（localStorage）", "info");
+    }
+
+    function copyGasCode() {
+      const code = document.getElementById("gas-code-template").textContent;
+      copyToClipboard(code);
+    }
+
+    // 2. 儲存題庫（同步至本機與 GAS）
+    async function persistBankChanges(successMsg) {
+      saveLocalState();
+      renderAll();
+
+      if (state.gasUrl) {
+        setSyncing(true, "正在將題庫更新同步至 Google 試算表...");
+        try {
+          const res = await postToGas({
+            action: "saveBank",
+            title: state.bank.title,
+            subtitle: state.bank.subtitle,
+            questions: state.bank.questions
+          });
+          if (res && res.ok) {
+            showToast(`${successMsg}（已同步至試算表）`, "success");
+          } else {
+            throw new Error("GAS saveBank error");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast(`${successMsg}（本機已存，但同步試算表失敗）`, "warning");
+        } finally {
+          setSyncing(false);
+        }
+      } else {
+        showToast(successMsg, "success");
+      }
+    }
+
+    async function handleSaveBankMeta(e) {
+      e.preventDefault();
+      state.bank.title = document.getElementById("admin-title-input").value.trim() || DEFAULT_BANK.title;
+      state.bank.subtitle = document.getElementById("admin-subtitle-input").value.trim();
+      await persistBankChanges("題庫名稱已更新");
+    }
+
+    // 3. 題目新增／編輯／刪除
+    function openQuestionModal(editId = null) {
+      document.getElementById("question-form").reset();
+      if (editId) {
+        const q = state.bank.questions.find((item) => item.id === editId);
+        if (!q) return;
+        document.getElementById("q-modal-title").textContent = "編輯題目";
+        document.getElementById("q-edit-id").value = q.id;
+        document.getElementById("q-input-text").value = q.text;
+        document.getElementById("q-input-a").value = q.options.A || "";
+        document.getElementById("q-input-b").value = q.options.B || "";
+        document.getElementById("q-input-c").value = q.options.C || "";
+        document.getElementById("q-input-d").value = q.options.D || "";
+        document.getElementById("q-input-answer").value = q.answer || "A";
+        document.getElementById("q-input-exp").value = q.explanation || "";
+      } else {
+        document.getElementById("q-modal-title").textContent = "新增題目";
+        document.getElementById("q-edit-id").value = "";
+      }
+      document.getElementById("question-modal").classList.remove("hidden");
+    }
+
+    function closeQuestionModal() {
+      document.getElementById("question-modal").classList.add("hidden");
+    }
+
+    async function handleSaveQuestion(e) {
+      e.preventDefault();
+      const editId = document.getElementById("q-edit-id").value;
+      const qObj = {
+        id: editId || `q_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        text: document.getElementById("q-input-text").value.trim(),
+        options: {
+          A: document.getElementById("q-input-a").value.trim(),
+          B: document.getElementById("q-input-b").value.trim(),
+          C: document.getElementById("q-input-c").value.trim(),
+          D: document.getElementById("q-input-d").value.trim()
+        },
+        answer: document.getElementById("q-input-answer").value,
+        explanation: document.getElementById("q-input-exp").value.trim()
+      };
+
+      if (editId) {
+        const idx = state.bank.questions.findIndex((item) => item.id === editId);
+        if (idx >= 0) state.bank.questions[idx] = qObj;
+      } else {
+        state.bank.questions.push(qObj);
+      }
+
+      closeQuestionModal();
+      await persistBankChanges(editId ? "題目已更新" : "已新增題目");
+    }
+
+    function confirmDeleteQuestion(id) {
+      openConfirmModal(
+        "確定刪除此題目？",
+        "刪除後該題目將不會再出現在每日抽題中，確定要刪除嗎？",
+        async () => {
+          state.bank.questions = state.bank.questions.filter((q) => q.id !== id);
+          await persistBankChanges("已刪除題目");
+        }
+      );
+    }
+
+    // 4. 匯出／匯入 JSON
+    function exportBankJSON() {
+      const jsonStr = JSON.stringify(state.bank.questions, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `daily_five_bank_${getTodayStr()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("已下載題庫 JSON 檔案", "success");
+    }
+
+    function openImportModal() {
+      document.getElementById("import-file-input").value = "";
+      document.getElementById("import-json-text").value = "";
+      document.getElementById("import-modal").classList.remove("hidden");
+    }
+
+    function closeImportModal() {
+      document.getElementById("import-modal").classList.add("hidden");
+    }
+
+    function handleImportFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        document.getElementById("import-json-text").value = ev.target.result;
+      };
+      reader.readAsText(file);
+    }
+
+    async function handleImportSubmit() {
+      const raw = document.getElementById("import-json-text").value.trim();
+      if (!raw) {
+        showToast("請選擇檔案或貼上 JSON 內容", "warning");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        const arr = Array.isArray(parsed) ? parsed : (Array.isArray(parsed.questions) ? parsed.questions : null);
+        if (!arr) throw new Error("JSON 必須是題目陣列 [...]");
+
+        const cleaned = arr.map((q, i) => {
+          if (!q.text || !q.options || !q.answer) {
+            throw new Error(`第 ${i + 1} 題缺少 text / options / answer 欄位`);
+          }
+          return {
+            id: q.id || `q_imp_${Date.now()}_${i}`,
+            text: String(q.text),
+            options: {
+              A: String(q.options.A || ""),
+              B: String(q.options.B || ""),
+              C: String(q.options.C || ""),
+              D: String(q.options.D || "")
+            },
+            answer: ["A", "B", "C", "D"].includes(q.answer) ? q.answer : "A",
+            explanation: String(q.explanation || "")
+          };
+        });
+
+        state.bank.questions = cleaned;
+        closeImportModal();
+        await persistBankChanges(`成功匯入 ${cleaned.length} 題題庫`);
+      } catch (err) {
+        showToast(`匯入失敗：${err.message}`, "error");
+      }
+    }
+
+    // 5. 重置本機展示統計
+    function confirmResetLocalStats() {
+      openConfirmModal(
+        "清除本機統計數據？",
+        "將清空目前瀏覽器的來訪頻率與錯題展示數據（不影響題庫與雲端試算表），確定嗎？",
+        () => {
+          state.visits = [];
+          state.errors = [];
+          localStorage.setItem(STORAGE_KEYS.VISITS, "[]");
+          localStorage.setItem(STORAGE_KEYS.ERRORS, "[]");
+          localStorage.setItem(STORAGE_KEYS.DEMO_SEEDED, "1");
+          renderStats();
+          showToast("已清除本機統計數據", "info");
+        }
+      );
+    }
+
+    // =========================================================================
+    // 啟動初始化
+    // =========================================================================
+    window.addEventListener("DOMContentLoaded", async () => {
+      state.gasUrl = resolveGasUrl();
+      loadLocalState();
+      renderAll();
+
+      // 依網址 hash 決定初始分頁
+      const hash = (window.location.hash || "#home").replace("#", "");
+      if (["home", "stats", "admin"].includes(hash)) {
+        navigateTo(hash);
+      }
+
+      // 若已設定單一 GAS 網址，自動於背景同步一次最新資料
+      if (state.gasUrl) {
+        await syncFromGas(true);
+      }
+    });
+  </script>
+</body>
+</html>
